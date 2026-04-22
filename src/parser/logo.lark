@@ -1,0 +1,126 @@
+%import common.WS
+%import common.NEWLINE
+%import common.ESCAPED_STRING
+%import common.SIGNED_NUMBER
+
+%ignore WS
+
+STRING : /[a-zA-Z_][a-zA-Z0-9_]*/
+number : SIGNED_NUMBER
+
+start : prog
+
+prog : NEWLINE* (program_declaration (NEWLINE program_declaration?)*)? NEWLINE*
+
+program_declaration : TO identifier param_list? NEWLINE (stmt* NEWLINE)* END
+
+TO : "to"
+END : "end"
+
+param_list : variable+
+
+stmt : make_stmt
+    | print_stmt
+	| repeat_stmt
+	| if_stmt
+	| while_stmt
+	| prog_call_stmt
+
+stmt_block : "[" stmt* "]"
+
+repeat_stmt : "repeat" expr stmt_block
+
+if_stmt: "if" expr stmt_block+
+
+while_stmt : "while" "[" expr "]" stmt_block
+
+make_stmt : MAKE var_decl expr | MAKE variable expr
+
+MAKE : "make"
+
+print_stmt : PRINT "[" STRING "]" | PRINT expr
+
+PRINT : "print"
+
+prog_call_stmt : identifier expr*
+
+expr : literal -> expr_literal
+    | "{" expr expr expr "}" -> expr_color
+	| "[" expr expr expr "]" -> expr_color
+	| "(" expr ")" -> expr_in_brackets
+	| ("+" | "-" | "!") expr -> expr_unary_op
+	| expr ("*" | "/" | "%") expr -> expr_b_op_mult
+	| func_name_two_arg expr expr -> expr_func_two_arg
+	| func_name_one_arg expr -> expr_func_one_arg
+	| const -> expr_const
+	| expr ("+" | "-") expr -> expr_b_op_add
+	| expr ("<" | "<=" | ">" | ">=") expr -> expr_b_op_comp
+	| expr ("=" | "!=") expr -> expr_b_op_eq
+	| expr "&&" expr -> expr_b_op_and
+	| expr "||" expr -> expr_b_op_or
+
+literal : variable | number | colorname | BOOLEAN
+
+const : PICONST | ECONST
+
+PICONST : "pi"
+ECONST : "e"
+
+func_name_one_arg: SIN
+	| TAN
+	| ABS
+	| ARCCOS
+	| ARCSIN
+	| ARCTAN
+	| COS
+	| SQRT
+	| RANDOM
+	| ROUND
+	| LOG
+
+SIN : "sin"
+SQRT : "sqrt"
+TAN : "tan"
+ABS : "abs"
+ARCCOS : "arccos" | "acos"
+ARCSIN : "arcsin" | "asin"
+ARCTAN : "arctan" | "atan"
+COS : "cos"
+MOD : "mod"
+RANDOM : "random" | "rand" | "rnd"
+ROUND : "round"
+POWER : "power" | "pow"
+LOG : "log" | "log10"
+
+func_name_two_arg : MOD | POWER
+
+colorname : "black" -> black
+    | "red" -> red
+    | "green" -> green
+    | "yellow" -> yellow
+    | "blue" -> blue
+    | "magenta" -> magenta
+    | "cyan" -> cyan
+    | "white" -> white
+    | "gray" -> gray
+    | "grey" -> grey
+    | "lightgray" -> gray
+    | "lightgrey" -> grey
+    | "darkred" -> darkred
+    | "darkgreen" -> darkgreen
+    | "darkblue" -> darkblue
+    | "orange" -> orange
+    | "pink" -> pink
+    | "purple" -> purple
+    | "brown" -> brown
+
+variable : ":" identifier
+
+var_decl : /"/ identifier
+
+BOOLEAN : "true" | "false"
+
+identifier : STRING
+
+COMMENT: /#[^\n\r]*/
+%ignore COMMENT
