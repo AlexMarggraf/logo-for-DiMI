@@ -6,20 +6,19 @@
 %ignore WS
 
 STRING : /[a-zA-Z_][a-zA-Z0-9_]*/
-number : SIGNED_NUMBER
+?number : SIGNED_NUMBER
 
-start : prog
+?start : prog |input_lines
 
 prog : NEWLINE* (program_declaration (NEWLINE program_declaration?)*)? NEWLINE*
 
-program_declaration : TO identifier param_list? NEWLINE (stmt* NEWLINE)* END
+input_lines : (stmt | NEWLINE)*
 
-TO : "to"
-END : "end"
+program_declaration : "to" identifier param_list? NEWLINE (stmt* NEWLINE)* "end"
 
 param_list : variable+
 
-stmt : make_stmt
+?stmt : make_stmt
     | print_stmt
 	| repeat_stmt
 	| if_stmt
@@ -30,21 +29,17 @@ stmt_block : "[" stmt* "]"
 
 repeat_stmt : "repeat" expr stmt_block
 
-if_stmt: "if" expr stmt_block+
+if_stmt: "if" "(" expr ")" stmt_block+
 
 while_stmt : "while" "[" expr "]" stmt_block
 
-make_stmt : MAKE var_decl expr | MAKE variable expr
+make_stmt : "make" var_decl expr | "make" variable expr
 
-MAKE : "make"
-
-print_stmt : PRINT "[" STRING "]" | PRINT expr
-
-PRINT : "print"
+print_stmt : "print" "[" STRING "]" | "print" expr
 
 prog_call_stmt : identifier expr*
 
-expr : literal -> expr_literal
+?expr : literal -> expr_literal
     | "{" expr expr expr "}" -> expr_color
 	| "[" expr expr expr "]" -> expr_color
 	| "(" expr ")" -> expr_in_brackets
@@ -59,9 +54,9 @@ expr : literal -> expr_literal
 	| expr "&&" expr -> expr_b_op_and
 	| expr "||" expr -> expr_b_op_or
 
-literal : variable | number | colorname | BOOLEAN
+?literal : variable | number | colorname | BOOLEAN
 
-const : PICONST | ECONST
+?const : PICONST | ECONST
 
 PICONST : "pi"
 ECONST : "e"
@@ -116,7 +111,7 @@ colorname : "black" -> black
 
 variable : ":" identifier
 
-var_decl : /"/ identifier
+var_decl : "\"" identifier
 
 BOOLEAN : "true" | "false"
 
