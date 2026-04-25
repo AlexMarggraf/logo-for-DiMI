@@ -289,7 +289,7 @@
     <div class="editor-wrap">
       <div class="line-nums" id="lnums">1</div>
       <textarea id="code"
-        placeholder="REPEAT 4 [ FORWARD 100  RIGHT 90 ]"
+        placeholder="logo code..."
         spellcheck="false"
         autocomplete="off"
         autocorrect="off"
@@ -299,7 +299,6 @@
     <div class="editor-footer">
       <button class="primary" id="send-btn" onclick="send()">Send to DiMI</button>
       <button onclick="clearCode()">Clear</button>
-      <button class="ghost" onclick="loadExample()">Example</button>
       <span class="meta" id="meta">0 lines</span>
     </div>
   </div>
@@ -391,12 +390,6 @@
   }
 
   function clearCode() { codeEl.value = ''; updateEditor(); }
-
-  function loadExample() {
-    codeEl.value = `; Square\nREPEAT 4 [\n  FORWARD 100\n  RIGHT 90\n]`;
-    updateEditor();
-    log('Example loaded.', 'dim');
-  }
 
   async function ping() {
     const url = baseUrl() + '/ping';
