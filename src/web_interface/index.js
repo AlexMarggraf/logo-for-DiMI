@@ -114,3 +114,33 @@ async function send() {
 
 updateEditor();
 log('Ready.', 'dim');
+
+const divider  = document.getElementById('divider');
+const rightCol = document.getElementById('right-col');
+
+let dragging = false;
+
+divider.addEventListener('mousedown', e => {
+  dragging = true;
+  divider.classList.add('dragging');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';   // prevent text selection while dragging
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const main = document.querySelector('main');
+  const mainRect = main.getBoundingClientRect();
+  // right-col width = distance from cursor to right edge of main
+  const newWidth = mainRect.right - e.clientX;
+  rightCol.style.width = Math.min(10000, Math.max(200, newWidth)) + 'px';
+});
+
+document.addEventListener('mouseup', () => {
+  if (!dragging) return;
+  dragging = false;
+  divider.classList.remove('dragging');
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+});

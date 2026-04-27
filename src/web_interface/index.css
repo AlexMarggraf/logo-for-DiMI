@@ -94,8 +94,7 @@ input[type="text"]:focus { border-color: var(--text); }
 /* ── Layout ── */
 main {
     flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 268px;
+    display: flex;
     overflow: hidden;
 }
 
@@ -104,7 +103,9 @@ main {
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--border);
+    flex: 1;
     overflow: hidden;
+    min-width: 300px;
 }
 
 .editor-wrap {
@@ -196,6 +197,9 @@ button.ghost:hover { color: var(--text); background: transparent; }
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-width: 200px;
+    width: 300px;
+    flex-shrink: 0;
 }
 
 .panel-head {
@@ -256,3 +260,16 @@ button.ghost:hover { color: var(--text); background: transparent; }
 
 .ref-cmd  { color: var(--text); }
 .ref-desc { color: var(--dim); }
+
+/* Divider */
+.divider {
+    width: 5px;
+    cursor: col-resize;
+    background: var(--border);
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+.divider:hover, .divider.dragging {
+    background: var(--dim);
+}
