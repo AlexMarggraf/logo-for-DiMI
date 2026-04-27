@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiMI Logo Controller</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="./index.css" rel="stylesheet"/>
+</head>
+<body>
+
+<header>
+  <span class="site-title">DiMI Logo</span>
+  <div class="sep"></div>
+  <div class="ip-row">
+    <span class="label">IP</span>
+    <input type="text" id="ip" value="192.168.1.100" />
+    <span class="label">port</span>
+    <input type="text" id="port" value="8080" class="short" />
+    <button onclick="ping()">Ping</button>
+  </div>
+  <div class="status">
+    <span class="dot" id="dot"></span>
+    <span id="status-text">disconnected</span>
+  </div>
+</header>
+
+<main>
+  <div class="editor-col">
+    <div class="editor-wrap">
+      <div class="line-nums" id="lnums">1</div>
+      <textarea id="code"
+        placeholder="logo code..."
+        spellcheck="false"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+      ></textarea>
+    </div>
+    <div class="editor-footer">
+      <button class="primary" id="send-btn" onclick="send()">Send to DiMI</button>
+      <button onclick="clearCode()">Clear</button>
+      <span class="meta" id="meta">0 lines</span>
+    </div>
+  </div>
+
+  <div class="right-col">
+    <div class="log-panel">
+      <div class="panel-head">
+        <span>Log</span>
+        <button class="ghost" onclick="clearLog()" style="font-size:11px;padding:2px 4px;">clear</button>
+      </div>
+      <div class="log-body" id="log"></div>
+    </div>
+    <!----
+    <div>
+      <div class="panel-head">Reference</div>
+      <div class="ref-body">
+        <div class="ref-grid">
+          <span class="ref-cmd">FORWARD n</span><span class="ref-desc">move forward</span>
+          <span class="ref-cmd">BACK n</span><span class="ref-desc">move backward</span>
+          <span class="ref-cmd">RIGHT deg</span><span class="ref-desc">turn clockwise</span>
+          <span class="ref-cmd">LEFT deg</span><span class="ref-desc">turn counter-CW</span>
+          <span class="ref-cmd">REPEAT n [</span><span class="ref-desc">loop n times</span>
+          <span class="ref-cmd">]</span><span class="ref-desc">end repeat</span>
+          <span class="ref-cmd">PENUP</span><span class="ref-desc">lift pen</span>
+          <span class="ref-cmd">PENDOWN</span><span class="ref-desc">drop pen</span>
+          <span class="ref-cmd">TO name</span><span class="ref-desc">define function</span>
+          <span class="ref-cmd">END</span><span class="ref-desc">end function</span>
+        </div>
+      </div>
+    </div>
+    --->
+  </div>
+</main>
+<script src="./index.js"></script>
+</body>
+</html>
