@@ -54,7 +54,7 @@ class LogoHandler(BaseHTTPRequestHandler):
 
         output = buffer.getvalue()
 
-        self._respond(400 if failed else 200, output or "(no output)")
+        self._respond(400 if failed else 200, output or "run successful")
 
     def _respond(self, code: int, body: str):
         payload = body.encode("utf-8")
