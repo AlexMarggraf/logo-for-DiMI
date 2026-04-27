@@ -76,8 +76,8 @@ class LogoHandler(BaseHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser(description="DiMI Logo HTTP Server")
-    parser.add_argument("--host", default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=8080)
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8989)
     args = parser.parse_args()
 
     server = HTTPServer((args.host, args.port), LogoHandler)
