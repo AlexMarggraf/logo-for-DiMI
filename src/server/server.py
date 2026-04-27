@@ -43,6 +43,7 @@ class LogoHandler(BaseHTTPRequestHandler):
             sys.stdout = buffer
             # TODO: replace exec(code) with exec(compile_logo(code))
             exec(code, {})
+            # in case of compile error: self._respond(400, "Compilation failed")
         except Exception:
             buffer.write(traceback.format_exc())
         finally:
@@ -78,8 +79,8 @@ def main():
 
     server = HTTPServer((args.host, args.port), LogoHandler)
     print(f"[{timestamp()}] DiMI Logo server listening on {args.host}:{args.port}")
-    print(f"             GET  /ping     — connectivity check")
-    print(f"             POST /execute  — run code and return output\n")
+    print(f"             GET  /ping     - connectivity check")
+    print(f"             POST /execute  - run code and return output\n")
 
     try:
         server.serve_forever()
