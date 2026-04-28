@@ -35,7 +35,7 @@ while_stmt : "while" "[" expr "]" stmt_block
 
 make_stmt : "make" var_decl expr | "make" variable expr
 
-print_stmt : "print" "[" STRING "]" | "print" expr
+print_stmt : "print" "[" STRING* "]" | "print" expr
 
 prog_call_stmt : identifier expr*
 
@@ -43,16 +43,21 @@ prog_call_stmt : identifier expr*
     | "{" expr expr expr "}" -> expr_color
 	| "[" expr expr expr "]" -> expr_color
 	| "(" expr ")" -> expr_in_brackets
-	| ("+" | "-" | "!") expr -> expr_unary_op
-	| expr ("*" | "/" | "%") expr -> expr_b_op_mult
+	| UNARY_ARIT_OP expr -> expr_unary_arit_op
+	| expr BIN_ARIT_OP expr -> expr_bin_arit_op
 	| func_name_two_arg expr expr -> expr_func_two_arg
 	| func_name_one_arg expr -> expr_func_one_arg
 	| const -> expr_const
-	| expr ("+" | "-") expr -> expr_b_op_add
-	| expr ("<" | "<=" | ">" | ">=") expr -> expr_b_op_comp
-	| expr ("=" | "!=") expr -> expr_b_op_eq
-	| expr "&&" expr -> expr_b_op_and
-	| expr "||" expr -> expr_b_op_or
+	| UNARY_BOOL_OP expr -> expr_unary_bool_op
+	| expr BIN_BOOL_OP expr -> expr_bin_bool_op
+
+UNARY_ARIT_OP : "+" | "-"
+
+BIN_ARIT_OP : "*" | "/" | "%" | "+" | "-"
+
+UNARY_BOOL_OP : "!"
+
+BIN_BOOL_OP : "<" | "<=" | ">" | ">=" | "==" | "!=" | "&&" | "||"
 
 ?literal : variable | number | colorname | BOOLEAN
 
@@ -61,33 +66,37 @@ prog_call_stmt : identifier expr*
 PICONST : "pi"
 ECONST : "e"
 
-func_name_one_arg: SIN
-	| TAN
-	| ABS
-	| ARCCOS
-	| ARCSIN
-	| ARCTAN
-	| COS
-	| SQRT
-	| RANDOM
-	| ROUND
-	| LOG
+STOP : "stop"
 
-SIN : "sin"
-SQRT : "sqrt"
-TAN : "tan"
-ABS : "abs"
-ARCCOS : "arccos" | "acos"
-ARCSIN : "arcsin" | "asin"
-ARCTAN : "arctan" | "atan"
-COS : "cos"
-MOD : "mod"
-RANDOM : "random" | "rand" | "rnd"
-ROUND : "round"
-POWER : "power" | "pow"
-LOG : "log" | "log10"
+?func_name_one_arg : sin
+	| cos
+	| tan
+	| asin
+	| acos
+	| atan
+	| abs
+	| sqrt
+	| rand
+	| round
+	| log
 
-func_name_two_arg : MOD | POWER
+sin : "sin"
+cos : "cos"
+tan : "tan"
+asin : "arcsin" | "asin"
+acos : "arccos" | "acos"
+atan : "arctan" | "atan"
+abs : "abs"
+sqrt : "sqrt"
+rand : "random" | "rand" | "rnd"
+round : "round"
+log : "log" | "log10"
+
+?func_name_two_arg : mod
+	| pow
+
+mod : "mod"
+pow : "power" | "pow"
 
 colorname : "black" -> black
     | "red" -> red
