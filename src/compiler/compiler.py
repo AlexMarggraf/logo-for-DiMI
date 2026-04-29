@@ -94,7 +94,7 @@ class Compiler(Transformer):
         return items[0]
     
     def expr_color(self, items):
-        return f"{self.action_set["color"]}({items[0]}, {items[1]}, {items[2]})"
+        return f"{self.action_set['color']}({items[0]}, {items[1]}, {items[2]})"
     
     def expr_unary_arit_op(self, items):
         return f"{items[0]}{items[1]}"
@@ -254,6 +254,18 @@ def indentPythonCode(pythonCode):
     
     return indentedPythonCode
 
+
+
+def compile_logo(logoCode):
+    parseTree = parseLogoCode(logoCode)
+
+    semanticChecker = SemanticChecker()
+    semanticTree = semanticChecker.visit(parseTree)
+
+    compiler = Compiler()
+    pythonCode = compiler.transform(semanticTree)
+
+    return indentPythonCode(pythonCode)
 
 if __name__ == "__main__":
     logoCode = '''
@@ -495,4 +507,4 @@ if __name__ == "__main__":
     print(pythonCode)
 
     """ print("pretty compile tree:")
-    print(pythonCode.pretty()) """
+    print(pythonCode.pretty())"""
