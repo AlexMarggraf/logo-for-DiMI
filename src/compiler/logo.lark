@@ -19,7 +19,8 @@ program_declaration : "to" identifier param_list? NEWLINE (stmt* NEWLINE)* "end"
 param_list : variable+
 
 ?stmt : make_stmt
-    | print_stmt
+    | print_str_stmt
+	| print_exp_stmt
 	| repeat_stmt
 	| if_stmt
 	| while_stmt
@@ -35,7 +36,8 @@ while_stmt : "while" "[" expr "]" stmt_block
 
 make_stmt : "make" var_decl expr | "make" variable expr
 
-print_stmt : "print" "[" STRING* "]" | "print" expr
+print_str_stmt : "print" "[" STRING* "]"
+print_exp_stmt : "print" expr
 
 prog_call_stmt : identifier expr*
 
