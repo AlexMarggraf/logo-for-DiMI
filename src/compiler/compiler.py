@@ -275,18 +275,6 @@ def compileLogoCode(logoCode):
     executable = indentPythonCode(pythonCode)
     return executable
 
-
-def compile_logo(logoCode):
-    parseTree = parseLogoCode(logoCode)
-
-    semanticChecker = SemanticChecker()
-    semanticTree = semanticChecker.visit(parseTree)
-
-    compiler = Compiler()
-    pythonCode = compiler.transform(semanticTree)
-
-    return indentPythonCode(pythonCode)
-
 if __name__ == "__main__":
     logoCode = '''
     to main
