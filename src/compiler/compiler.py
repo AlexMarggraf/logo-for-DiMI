@@ -215,6 +215,7 @@ class Compiler(Transformer):
             for i in range(2, len(items)):
                 body += f"{items[i]}\n"
         else:
+            args = "()"
             for i in range(1, len(items)):
                 body += f"{items[i]}\n"
         
@@ -252,7 +253,7 @@ def indentPythonCode(pythonCode):
     
             indentedPythonCode += lines[i] + "\n"
     
-    return indentedPythonCode
+    return indentedPythonCode + "\nmain()"
 
 
 
