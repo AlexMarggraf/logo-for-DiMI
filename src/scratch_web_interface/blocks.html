@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DiMI · Blocks</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+
+  <style>
+    /* ── Reset + Tokens ────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #f5f5f3;
+      --surface: #ffffff;
+      --border:  #d8d8d4;
+      --text:    #1a1a1a;
+      --dim:     #888;
+      --green:   #2a7a3b;
+      --red:     #b83232;
+      --mono:    'IBM Plex Mono', monospace;
+      --sans:    'IBM Plex Sans', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--sans);
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-shrink: 0;
+    }
+
+    .site-title {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .sep { width: 1px; height: 20px; background: var(--border); }
+
+    nav { display: flex; }
+
+    nav a {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--dim);
+      text-decoration: none;
+      padding: 4px 12px;
+      border: 1px solid transparent;
+      transition: color 0.12s;
+    }
+
+    nav a:hover { color: var(--text); }
+
+    nav a.active {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--bg);
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--dim);
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .dot.ok    { background: var(--green); }
+    .dot.err   { background: var(--red); }
+    .dot.blink { background: var(--green); animation: blink 1.4s infinite; }
+    @keyframes blink { 50% { opacity: 0.25; } }
+
+    /* ── Toolbar ────────────────────────────────────── */
+    .toolbar {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .toolbar-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-right: 8px;
+      user-select: none;
+    }
+
+    /* ── Buttons ────────────────────────────────────── */
+    button {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 5px 12px;
+      transition: background 0.1s;
+    }
+
+    button:hover  { background: var(--bg); }
+    button:active { background: #e8e8e5; }
+
+    button.primary {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    button.primary:hover    { background: #333; border-color: #333; }
+    button.primary:disabled { background: #aaa; border-color: #aaa; cursor: default; }
+
+    button.ghost {
+      background: transparent;
+      border-color: transparent;
+      color: var(--dim);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+    }
+
+    button.ghost:hover { color: var(--text); background: transparent; }
+
+    button.ghost svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* ── Main ───────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    #blocklyDiv {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+    }
+
+    /* ── Right col: Console ─────────────────────────── */
+    .right-col {
+      width: 300px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 9px 16px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--dim);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .log-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.7;
+      background: var(--surface);
+    }
+
+    .log-body::-webkit-scrollbar { width: 3px; }
+    .log-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .log-line {
+      display: flex;
+      gap: 10px;
+      opacity: 0;
+      animation: fi 0.12s forwards;
+    }
+
+    @keyframes fi { to { opacity: 1; } }
+
+    .log-time { color: #ccc; flex-shrink: 0; }
+    .log-msg  { word-break: break-word; }
+    .log-msg.ok  { color: var(--green); }
+    .log-msg.err { color: var(--red); }
+    .log-msg.dim { color: var(--dim); }
+
+    /* ── Bottom bar ─────────────────────────────────── */
+    .bottom-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 0 16px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .label {
+      font-size: 12px;
+      color: var(--dim);
+      white-space: nowrap;
+    }
+
+    input[type="text"] {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 10px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus { border-color: var(--text); }
+    input.ip   { width: 140px; }
+    input.port { width: 60px; }
+
+    .bottom-bar .spacer { flex: 1; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <span class="site-title">DiMI</span>
+  <div class="sep"></div>
+  <nav>
+    <a href="index.html">Code</a>
+    <a href="blocks.html" class="active">Blocks</a>
+  </nav>
+  <div class="status">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">—</span>
+  </div>
+</header>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <span class="toolbar-label">Workspace</span>
+  <button class="ghost" id="btnClear">
+    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    Leeren
+  </button>
+  <button class="ghost" id="btnUndo">
+    <svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+    Rückgängig
+  </button>
+  <button class="ghost" id="btnRedo">
+    <svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 0 4-4h12"/></svg>
+    Wiederholen
+  </button>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div id="blocklyDiv"></div>
+
+  <div class="right-col">
+    <div class="panel-head">
+      Ausgabe
+      <button class="ghost" id="btnClearLog" style="font-size:11px;padding:2px 6px;">Leeren</button>
+    </div>
+    <div class="log-body" id="logBody"></div>
+  </div>
+</main>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <span class="label">IP</span>
+  <input id="robotIp"   type="text" class="ip"   value="192.168.1.1" spellcheck="false" />
+  <span class="label">Port</span>
+  <input id="robotPort" type="text" class="port" value="8080"        spellcheck="false" />
+  <div class="spacer"></div>
+  <button id="btnPing">Ping</button>
+  <button class="primary" id="btnSend">▶ Ausführen</button>
+</div>
+
+<!-- TOOLBOX -->
+<xml id="toolbox" style="display:none">
+  <category name="🚗 Fahren" colour="#4f86f7">
+    <block type="logo_forward">
+      <value name="STEPS"><shadow type="math_number"><field name="NUM">50</field></shadow></value>
+    </block>
+    <block type="logo_back">
+      <value name="STEPS"><shadow type="math_number"><field name="NUM">50</field></shadow></value>
+    </block>
+  </category>
+  <category name="↩ Drehen" colour="#f4a942">
+    <block type="logo_right">
+      <value name="ANGLE"><shadow type="math_number"><field name="NUM">90</field></shadow></value>
+    </block>
+    <block type="logo_left">
+      <value name="ANGLE"><shadow type="math_number"><field name="NUM">90</field></shadow></value>
+    </block>
+  </category>
+  <category name="🔁 Wiederholen" colour="#9b59b6">
+    <block type="logo_repeat">
+      <value name="TIMES"><shadow type="math_number"><field name="NUM">4</field></shadow></value>
+    </block>
+  </category>
+  <category name="🖊 Stift" colour="#27ae60">
+    <block type="logo_penup"></block>
+    <block type="logo_pendown"></block>
+  </category>
+  <category name="📦 Prozedur" colour="#e74c3c">
+    <block type="logo_procedure"></block>
+    <block type="logo_call_procedure"></block>
+  </category>
+  <sep></sep>
+  <category name="🔢 Zahlen" colour="#7f8c8d">
+    <block type="math_number"><field name="NUM">10</field></block>
+  </category>
+</xml>
+
+<script src="blocks.js"></script>
+</body>
+</html>
