@@ -7,7 +7,7 @@ import traceback
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from datetime import datetime
 
-from compiler import compile_logo
+from compiler import compileLogoCode
 
 
 def timestamp():
@@ -46,7 +46,7 @@ class LogoHandler(BaseHTTPRequestHandler):
         try:
             sys.stdout = buffer
             # TODO: replace exec(code) with exec(compile_logo(code))
-            exec(compile_logo(code), {})
+            exec(compileLogoCode(code), {})
             # in case of compile error: self._respond(400, "Compilation failed")
         except Exception:
             buffer.write(traceback.format_exc())
