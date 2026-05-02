@@ -273,3 +273,16 @@ button.ghost:hover { color: var(--text); background: transparent; }
 .divider:hover, .divider.dragging {
     background: var(--dim);
 }
+
+/* nav */
+.nav-link {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--dim);
+    text-decoration: none;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    transition: border-color 0.15s, color 0.15s;
+}
+.nav-link:hover { border-color: var(--border); color: var(--text); }
+.nav-link.active { border-color: var(--border); color: var(--text); background: var(--bg); }
