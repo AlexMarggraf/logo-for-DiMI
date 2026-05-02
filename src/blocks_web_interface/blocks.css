@@ -1,0 +1,94 @@
+/* workspace */
+.blockly-col {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    flex: 1;
+    overflow: hidden;
+    min-width: 300px;
+}
+
+#blockly-area {
+    flex: 1;
+    position: relative;
+    /* overflow visible so the trashcan isn't clipped at the bottom */
+    overflow: visible;
+    background-color: #f9f9f9;
+    background-image: radial-gradient(circle, #c8c8c8 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+#blockly-div {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+}
+
+
+.blocklyMainBackground { fill: transparent !important; }
+
+/* Scratch-style toolbox */
+.blocklyToolboxDiv {
+    background: #fff !important;
+    border-right: 2px solid #e0e0e0 !important;
+}
+.blocklyTreeRow {
+    border-radius: 0 20px 20px 0 !important;
+    margin: 2px 8px 2px 0 !important;
+    padding: 8px 10px 8px 14px !important;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    cursor: pointer;
+}
+.blocklyTreeRow:hover { opacity: 0.85; }
+.blocklyFlyoutBackground { fill: #fff !important; }
+
+/* footer */
+.editor-footer {
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* right panel */
+.preview-panel { border-bottom: 1px solid var(--border); }
+.preview-body {
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    background: var(--surface);
+    color: var(--dim);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 80px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.preview-body::-webkit-scrollbar { width: 3px; }
+.preview-body::-webkit-scrollbar-thumb { background: var(--border); }
+.preview-body.has-code { color: var(--text); }
+.orphan-warn {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #E67E22;
+    font-family: var(--sans);
+    white-space: normal;
+}
+
+/* nav */
+.nav-link {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--dim);
+    text-decoration: none;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    transition: border-color 0.15s, color 0.15s;
+}
+.nav-link:hover { border-color: var(--border); color: var(--text); }
+.nav-link.active { border-color: var(--border); color: var(--text); background: var(--bg); }
