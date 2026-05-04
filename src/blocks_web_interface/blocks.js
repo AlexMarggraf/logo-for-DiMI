@@ -200,33 +200,32 @@ const LOGO_BLOCKS = [
 
     /* procedures */
 
-    { type:'logo_proc_def',
-        message0:'define %1 params %2',
+    { type:'logo_proc_1arg_def',
+        message0:'define %1 param %2',
         args0:[
-            {type:'field_input', name:'NAME', text:'myProc'},
-            {type:'field_input', name:'PARAMS', text:''},
+            {type:'field_input', name:'NAME', text:'fun'},
+            {type:'field_input', name:'PARAM', text:'x'},
         ],
         message1:'%1', args1:[{type:'input_statement', name:'BODY'}],
-        colour:C.proc,   // no previousStatement / nextStatement = standalone block
+        colour:C.proc,
         toCode: b => {
-            const name   = b.getFieldValue('NAME')   || 'myProc';
-            const params = (b.getFieldValue('PARAMS') || '').trim()
-                .split(/\s+/).filter(Boolean).map(p => `:${p}`).join(' ');
+            const name   = b.getFieldValue('NAME') || 'fun';
+            const param = (b.getFieldValue('PARAM') || '').trim()
             const body   = stmts(b,'BODY');
-            return `to ${name}${params ? ' ' + params : ''}\n${body}end\n`;
+            return `to ${name}${param ? " :" + param : ""}\n${body}end\n`;
         }},
 
-    { type:'logo_proc_call',
-        message0:'call %1 args %2',
+    { type:'logo_proc_1arg_call',
+        message0:'call %1 arg %2',
         args0:[
-            {type:'field_input', name:'NAME', text:'myProc'},
-            {type:'input_value', name:'ARG1'},
+            {type:'field_input', name:'NAME', text:'fun'},
+            {type:'input_value', name:'ARG'},
         ],
         previousStatement:null, nextStatement:null, colour:C.proc,
         toCode: b => {
-            const name = b.getFieldValue('NAME') || 'myProc';
-            const arg  = valExpr(b,'ARG1','');
-            return `${name}${arg ? ' ' + arg : ''}\n`;
+            const name = b.getFieldValue('NAME') || 'fun';
+            const arg  = valExpr(b,'ARG','');
+            return `${name}${arg.toString() ? ' ' + arg : ''}\n`;
         }},
 
     /* math */
@@ -364,7 +363,7 @@ function generateLogo() {
 
     // Emit all procedure definitions regardless of connection
     let procCode = '';
-    tops.filter(b => b.type === 'logo_proc_def').forEach(b => {
+    tops.filter(b => b.type === 'logo_proc_1arg_def').forEach(b => {
         procCode += blockToCode(b) + '\n';
     });
 
@@ -381,7 +380,7 @@ function generateLogo() {
 function getOrphans() {
     if (!workspace) return 0;
     return workspace.getTopBlocks(true)
-        .filter(b => b.type !== 'logo_start' && b.type !== 'logo_proc_def').length;
+        .filter(b => b.type !== 'logo_start' && b.type !== 'logo_proc_1arg_def').length;
 }
 
 /* blockly init */
