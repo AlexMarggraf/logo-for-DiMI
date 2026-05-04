@@ -180,9 +180,9 @@ const LOGO_BLOCKS = [
         }},
     { type:'logo_var_get',
         message0:'variable %1',
-        args0:[{type:'field_input', name:'TEXT', text: "x"}],
+        args0:[{type:'field_input', name:'VAR', text: "x"}],
         output:'Number', colour:C.vars,
-        toCode: b => `:${valExpr(b,'TEXT','x')}` },
+        toCode: b => `:${b.getFieldValue('VAR') || 'x'}` },
 
     /* print */
     { type:'logo_print_str',
@@ -200,6 +200,29 @@ const LOGO_BLOCKS = [
 
     /* procedures */
 
+    { type:'logo_proc_0arg_def',
+        message0:'define %1 ',
+        args0:[
+            {type:'field_input', name:'NAME', text:'fun'},
+        ],
+        message1:'%1', args1:[{type:'input_statement', name:'BODY'}],
+        colour:C.proc,
+        toCode: b => {
+            const name   = b.getFieldValue('NAME') || 'fun';
+            const body   = stmts(b,'BODY');
+            return `to ${name}\n${body}end\n`;
+        }},
+
+    { type:'logo_proc_0arg_call',
+        message0:'call %1',
+        args0:[
+            {type:'field_input', name:'NAME', text:'fun'},
+        ],
+        previousStatement:null, nextStatement:null, colour:C.proc,
+        toCode: b => {
+            const name = b.getFieldValue('NAME') || 'fun';
+            return `${name}\n`;
+        }},
     { type:'logo_proc_1arg_def',
         message0:'define %1 param %2',
         args0:[
@@ -363,7 +386,7 @@ function generateLogo() {
 
     // Emit all procedure definitions regardless of connection
     let procCode = '';
-    tops.filter(b => b.type === 'logo_proc_1arg_def').forEach(b => {
+    tops.filter(b => b.type === 'logo_proc_1arg_def' || b.type === "logo_proc_0arg_def").forEach(b => {
         procCode += blockToCode(b) + '\n';
     });
 
@@ -380,7 +403,7 @@ function generateLogo() {
 function getOrphans() {
     if (!workspace) return 0;
     return workspace.getTopBlocks(true)
-        .filter(b => b.type !== 'logo_start' && b.type !== 'logo_proc_1arg_def').length;
+        .filter(b => b.type !== 'logo_start' && b.type !== 'logo_proc_1arg_def' && b.type !== "logo_proc_0arg_def").length;
 }
 
 /* blockly init */
