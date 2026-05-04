@@ -11,7 +11,6 @@
 #blockly-area {
     flex: 1;
     position: relative;
-    /* overflow visible so the trashcan isn't clipped at the bottom */
     overflow: visible;
     background-color: #f9f9f9;
     background-image: radial-gradient(circle, #c8c8c8 1px, transparent 1px);

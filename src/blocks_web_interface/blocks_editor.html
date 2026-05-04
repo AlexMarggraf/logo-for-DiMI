@@ -90,7 +90,6 @@
       <value name="G"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
       <value name="B"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
     </block>
-    <block type="logo_clearscreen"></block>
   </category>
 
   <category name="Looks" colour="#9966FF">
@@ -103,16 +102,14 @@
       <value name="TIMES"><shadow type="math_number"><field name="NUM">4</field></shadow></value>
     </block>
     <block type="logo_if">
-      <value name="COND"><shadow type="logo_bool"><field name="VAL">true</field></shadow></value>
+
     </block>
     <block type="logo_while">
-      <value name="COND"><shadow type="logo_bool"><field name="VAL">true</field></shadow></value>
     </block>
-    <block type="logo_stop"></block>
   </category>
 
   <category name="Variables" colour="#FF8C1A">
-    <block type="logo_make"></block>
+    <block type="logo_make"><value name="VAL"><shadow type="math_number"><field name="NUM">1</field></shadow></value></block>
     <block type="logo_var_get"></block>
   </category>
 
@@ -129,7 +126,6 @@
   </category>
 
   <category name="Math" colour="#5B67A5">
-    <block type="math_number"></block>
     <block type="logo_arith">
       <value name="A"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
       <value name="B"><shadow type="math_number"><field name="NUM">0</field></shadow></value>

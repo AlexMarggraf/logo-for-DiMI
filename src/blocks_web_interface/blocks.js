@@ -133,12 +133,9 @@ const LOGO_BLOCKS = [
             {type:'input_value',name:'G',check:'Number'},
             {type:'input_value',name:'B',check:'Number'},
         ],
+        inputsInline: true,
         previousStatement:null, nextStatement:null, colour:C.pen,
         toCode: b => `setpencolor { ${val(b,'R',0)} ${val(b,'G',0)} ${val(b,'B',0)} }\n` },
-
-    { type:'logo_clearscreen', message0:'clear screen',
-        previousStatement:null, nextStatement:null, colour:C.pen,
-        toCode: () => `cs\n` },
 
     /* looks */
     { type:'logo_showturtle', message0:'show turtle',
@@ -157,20 +154,16 @@ const LOGO_BLOCKS = [
         toCode: b => `repeat ${val(b,'TIMES',4)} [\n${stmts(b,'DO')}]\n` },
 
     { type:'logo_if',
-        message0:'if %1', args0:[{type:'input_value',name:'COND'}],
+        message0:'if %1', args0:[{type:'input_value',name:'COND', check: "Boolean"}],
         message1:'%1',        args1:[{type:'input_statement',name:'DO'}],
         previousStatement:null, nextStatement:null, colour:C.control,
-        toCode: b => `if (${valExpr(b,'COND','True')}) [\n${stmts(b,'DO')}]\n` },
+        toCode: b => `if (${valExpr(b,'COND','false')}) [\n${stmts(b,'DO')}]\n` },
 
     { type:'logo_while',
-        message0:'while %1', args0:[{type:'input_value',name:'COND'}],
+        message0:'while %1', args0:[{type:'input_value',name:'COND', check: "Boolean"}],
         message1:'%1',           args1:[{type:'input_statement',name:'DO'}],
         previousStatement:null, nextStatement:null, colour:C.control,
-        toCode: b => `while [${valExpr(b,'COND','True')}] [\n${stmts(b,'DO')}]\n` },
-
-    { type:'logo_stop', message0:'stop',
-        previousStatement:null, nextStatement:null, colour:C.control,
-        toCode: () => `stop\n` },
+        toCode: b => `while [${valExpr(b,'COND','true')}] [\n${stmts(b,'DO')}]\n` },
 
     /* variables */
 
@@ -178,19 +171,18 @@ const LOGO_BLOCKS = [
         message0:'set %1 to %2',
         args0:[
             {type:'field_input', name:'VAR', text:'x'},
-            {type:'input_value', name:'VAL'},
+            {type:'input_value', name:'VAL', text: "1", check: "Number",},
         ],
         previousStatement:null, nextStatement:null, colour:C.vars,
         toCode: b => {
             const v = b.getFieldValue('VAR') || 'x';
             return `make "${v} ${valExpr(b,'VAL','0')}\n`;
         }},
-
     { type:'logo_var_get',
-        message0:'%1',
-        args0:[{type:'field_input', name:'VAR', text:'x'}],
-        output:null, colour:C.vars,
-        toCode: b => `:${b.getFieldValue('VAR') || 'x'}` },
+        message0:'variable %1',
+        args0:[{type:'field_input', name:'TEXT', text: "x"}],
+        output:'Number', colour:C.vars,
+        toCode: b => `:${valExpr(b,'TEXT','x')}` },
 
     /* print */
     { type:'logo_print_str',
@@ -245,6 +237,7 @@ const LOGO_BLOCKS = [
             {type:'field_dropdown', name:'OP', options:[['+','+'],['-','-'],['×','*'],['÷','/'],['%','%']]},
             {type:'input_value', name:'B', check:'Number'},
         ],
+        inputsInline: true,
         output:'Number', colour:C.math,
         toCode: b => `(${valExpr(b,'A','0')} ${b.getFieldValue('OP')} ${valExpr(b,'B','0')})` },
 
@@ -267,6 +260,7 @@ const LOGO_BLOCKS = [
                 ]},
             {type:'input_value', name:'VAL', check:'Number'},
         ],
+        inputsInline: true,
         output:'Number', colour:C.math,
         toCode: b => `${b.getFieldValue('FN')} ${valExpr(b,'VAL','0')}` },
 
@@ -278,6 +272,7 @@ const LOGO_BLOCKS = [
             {type:'input_value', name:'A', check:'Number'},
             {type:'input_value', name:'B', check:'Number'},
         ],
+        inputsInline: true,
         output:'Number', colour:C.math,
         toCode: b => `${b.getFieldValue('FN')} ${valExpr(b,'A','0')} ${valExpr(b,'B','0')}` },
 
@@ -292,7 +287,7 @@ const LOGO_BLOCKS = [
     // Boolean literal
     { type:'logo_bool',
         message0:'%1',
-        args0:[{type:'field_dropdown', name:'VAL', options:[['True','True'],['false','false']]}],
+        args0:[{type:'field_dropdown', name:'VAL', options:[['true','true'],['false','false']]}],
         output:'Boolean', colour:C.logic,
         toCode: b => b.getFieldValue('VAL') },
 
@@ -306,6 +301,7 @@ const LOGO_BLOCKS = [
                 ]},
             {type:'input_value', name:'B'},
         ],
+        inputsInline: true,
         output:'Boolean', colour:C.logic,
         toCode: b => `(${valExpr(b,'A','0')} ${b.getFieldValue('OP').trim()} ${valExpr(b,'B','0')})` },
 
@@ -317,15 +313,16 @@ const LOGO_BLOCKS = [
             {type:'field_dropdown', name:'OP', options:[['and','&&'],['or','||']]},
             {type:'input_value', name:'B', check:'Boolean'},
         ],
+        inputsInline: true,
         output:'Boolean', colour:C.logic,
-        toCode: b => `(${valExpr(b,'A','True')} ${b.getFieldValue('OP')} ${valExpr(b,'B','True')})` },
+        toCode: b => `(${valExpr(b,'A','true')} ${b.getFieldValue('OP')} ${valExpr(b,'B','true')})` },
 
     // Boolean NOT
     { type:'logo_not',
         message0:'not %1',
         args0:[{type:'input_value', name:'VAL', check:'Boolean'}],
         output:'Boolean', colour:C.logic,
-        toCode: b => `!${valExpr(b,'VAL','True')}` },
+        toCode: b => `!${valExpr(b,'VAL','true')}` },
 ];
 
 /* code generation */
