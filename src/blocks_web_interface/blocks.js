@@ -400,12 +400,6 @@ function generateLogo() {
     return "to main\n" + mainCode + "end\n\n" + procCode;
 }
 
-function getOrphans() {
-    if (!workspace) return 0;
-    return workspace.getTopBlocks(true)
-        .filter(b => b.type !== 'logo_start' && b.type !== 'logo_proc_1arg_def' && b.type !== "logo_proc_0arg_def").length;
-}
-
 /* blockly init */
 function initBlockly() {
     // Register blocks
@@ -457,17 +451,14 @@ function initBlockly() {
     // Live preview
     workspace.addChangeListener(() => {
         const code    = generateLogo().trim();
-        const orphans = getOrphans();
         const total   = Math.max(0, workspace.getAllBlocks(false).length - 1); // exclude start hat
         metaEl.textContent = `${total} block${total !== 1 ? 's' : ''}`;
 
         if (code) {
-            previewEl.innerHTML = esc(code) +
-                (orphans ? `<div class="orphan-warn">⚠ ${orphans} disconnected stack${orphans>1?'s':''} will not run</div>` : '');
+            previewEl.innerHTML = esc(code)
             previewEl.classList.add('has-code');
         } else {
-            previewEl.innerHTML = 'Connect blocks to the 🚩 Start block…' +
-                (orphans ? `<div class="orphan-warn">⚠ ${orphans} disconnected stack${orphans>1?'s':''} won't run</div>` : '');
+            previewEl.innerHTML = 'Connect blocks to the 🚩 Start block…'
             previewEl.classList.remove('has-code');
         }
     });

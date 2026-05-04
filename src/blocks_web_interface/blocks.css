@@ -71,13 +71,6 @@
 .preview-body::-webkit-scrollbar { width: 3px; }
 .preview-body::-webkit-scrollbar-thumb { background: var(--border); }
 .preview-body.has-code { color: var(--text); }
-.orphan-warn {
-    margin-top: 6px;
-    font-size: 11px;
-    color: #E67E22;
-    font-family: var(--sans);
-    white-space: normal;
-}
 
 /* nav */
 .nav-link {
