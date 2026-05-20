@@ -103,49 +103,6 @@ const LOGO_BLOCKS = [
         previousStatement:null, nextStatement:null, colour:C.motion,
         toCode: () => `home\n` },
 
-    /* pen */
-    { type:'logo_pendown', message0:'pen down',
-        previousStatement:null, nextStatement:null, colour:C.pen,
-        toCode: () => `pd\n` },
-
-    { type:'logo_penup', message0:'pen up',
-        previousStatement:null, nextStatement:null, colour:C.pen,
-        toCode: () => `pu\n` },
-
-    { type:'logo_setpensize', message0:'set pen size to %1',
-        args0:[{type:'input_value',name:'SIZE',check:'Number'}],
-        previousStatement:null, nextStatement:null, colour:C.pen,
-        toCode: b => `setpensize ${val(b,'SIZE',2)}\n` },
-
-    // Named color picker (dropdown)
-    { type:'logo_setpencolor_named',
-        message0:'set pen color to %1',
-        args0:[{type:'field_dropdown', name:'COLOR',
-            options: NAMED_COLORS.map(n => [n, n])}],
-        previousStatement:null, nextStatement:null, colour:C.pen,
-        toCode: b => `setpencolor ${b.getFieldValue('COLOR')}\n` },
-
-    // RGB color  { r g b }
-    { type:'logo_setpencolor_rgb',
-        message0:'set pen color R %1 G %2 B %3',
-        args0:[
-            {type:'input_value',name:'R',check:'Number'},
-            {type:'input_value',name:'G',check:'Number'},
-            {type:'input_value',name:'B',check:'Number'},
-        ],
-        inputsInline: true,
-        previousStatement:null, nextStatement:null, colour:C.pen,
-        toCode: b => `setpencolor { ${val(b,'R',0)} ${val(b,'G',0)} ${val(b,'B',0)} }\n` },
-
-    /* looks */
-    { type:'logo_showturtle', message0:'show turtle',
-        previousStatement:null, nextStatement:null, colour:C.looks,
-        toCode: () => `st\n` },
-
-    { type:'logo_hideturtle', message0:'hide turtle',
-        previousStatement:null, nextStatement:null, colour:C.looks,
-        toCode: () => `ht\n` },
-
     /* control */
     { type:'logo_repeat',
         message0:'repeat %1 times', args0:[{type:'input_value',name:'TIMES',check:'Number'}],
