@@ -137,9 +137,9 @@ const LOGO_BLOCKS = [
         }},
     { type:'logo_var_get',
         message0:'variable %1',
-        args0:[{type:'field_input', name:'TEXT', text: "x"}],
+        args0:[{type:'field_input', name:'VAR', text: "x"}],
         output:'Number', colour:C.vars,
-        toCode: b => `:${valExpr(b,'TEXT','x')}` },
+        toCode: b => `:${b.getFieldValue('VAR') || 'x'}` },
 
     /* print */
     { type:'logo_print_str',
@@ -157,6 +157,29 @@ const LOGO_BLOCKS = [
 
     /* procedures */
 
+    { type:'logo_proc_0arg_def',
+        message0:'define %1 ',
+        args0:[
+            {type:'field_input', name:'NAME', text:'fun'},
+        ],
+        message1:'%1', args1:[{type:'input_statement', name:'BODY'}],
+        colour:C.proc,
+        toCode: b => {
+            const name   = b.getFieldValue('NAME') || 'fun';
+            const body   = stmts(b,'BODY');
+            return `to ${name}\n${body}end\n`;
+        }},
+
+    { type:'logo_proc_0arg_call',
+        message0:'call %1',
+        args0:[
+            {type:'field_input', name:'NAME', text:'fun'},
+        ],
+        previousStatement:null, nextStatement:null, colour:C.proc,
+        toCode: b => {
+            const name = b.getFieldValue('NAME') || 'fun';
+            return `${name}\n`;
+        }},
     { type:'logo_proc_1arg_def',
         message0:'define %1 param %2',
         args0:[
@@ -320,7 +343,7 @@ function generateLogo() {
 
     // Emit all procedure definitions regardless of connection
     let procCode = '';
-    tops.filter(b => b.type === 'logo_proc_1arg_def').forEach(b => {
+    tops.filter(b => b.type === 'logo_proc_1arg_def' || b.type === "logo_proc_0arg_def").forEach(b => {
         procCode += blockToCode(b) + '\n';
     });
 
@@ -332,12 +355,6 @@ function generateLogo() {
     }
 
     return "to main\n" + mainCode + "end\n\n" + procCode;
-}
-
-function getOrphans() {
-    if (!workspace) return 0;
-    return workspace.getTopBlocks(true)
-        .filter(b => b.type !== 'logo_start' && b.type !== 'logo_proc_1arg_def').length;
 }
 
 /* blockly init */
@@ -391,17 +408,14 @@ function initBlockly() {
     // Live preview
     workspace.addChangeListener(() => {
         const code    = generateLogo().trim();
-        const orphans = getOrphans();
         const total   = Math.max(0, workspace.getAllBlocks(false).length - 1); // exclude start hat
         metaEl.textContent = `${total} block${total !== 1 ? 's' : ''}`;
 
         if (code) {
-            previewEl.innerHTML = esc(code) +
-                (orphans ? `<div class="orphan-warn">⚠ ${orphans} disconnected stack${orphans>1?'s':''} will not run</div>` : '');
+            previewEl.innerHTML = esc(code)
             previewEl.classList.add('has-code');
         } else {
-            previewEl.innerHTML = 'Connect blocks to the 🚩 Start block…' +
-                (orphans ? `<div class="orphan-warn">⚠ ${orphans} disconnected stack${orphans>1?'s':''} won't run</div>` : '');
+            previewEl.innerHTML = 'Connect blocks to the 🚩 Start block…'
             previewEl.classList.remove('has-code');
         }
     });
