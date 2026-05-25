@@ -2,6 +2,7 @@
 %import common.NEWLINE
 %import common.ESCAPED_STRING
 %import common.SIGNED_NUMBER
+%import common.CNAME
 
 %ignore WS
 
@@ -66,7 +67,7 @@ BIN_BOOL_OP : "<" | "<=" | ">" | ">=" | "==" | "!=" | "&&" | "||"
 ?const : PICONST | ECONST
 
 PICONST : "pi"
-ECONST : "e"
+ECONST : /e(?!nd)/
 
 STOP : "stop"
 
@@ -126,7 +127,7 @@ var_decl : "\"" identifier
 
 BOOLEAN : "true" | "false"
 
-identifier : STRING
+identifier: /(?!(to|end))[a-zA-Z_][a-zA-Z0-9_]*/
 
 COMMENT: /#[^\n\r]*/
 %ignore COMMENT
