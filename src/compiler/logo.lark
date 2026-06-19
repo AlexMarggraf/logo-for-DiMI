@@ -9,7 +9,7 @@
 STRING : /[a-zA-Z_][a-zA-Z0-9_]*/
 ?number : SIGNED_NUMBER
 
-?start : prog |input_lines
+?start : prog | input_lines
 
 prog : NEWLINE* (program_declaration (NEWLINE program_declaration?)*)? NEWLINE*
 

@@ -239,7 +239,7 @@ class Compiler(Transformer):
             for i in range(1, len(items)):
                 body += f"{items[i]}\n"
         
-        return f"def {iden}{args}:\n__INDENT\n{body}\n__OVER"
+        return f"def {iden}{args}:\n__INDENT\n{body}__OVER"
 
     def prog(self, items):
         program = ""
@@ -249,6 +249,17 @@ class Compiler(Transformer):
         for item in items:
             program += f"{item}\n"
 
+        return program
+
+    def input_lines(self, items):
+        program = "def main():\n__INDENT\n"
+
+        items = [item for item in items if not re.fullmatch(r"\s+", item)]
+        
+        for item in items:
+            program += f"{item}\n"
+
+        program += "__OVER"
         return program
     
 def indentPythonCode(pythonCode):
@@ -291,24 +302,14 @@ if __name__ == "__main__":
 
     logoCode = '''
     to main
-        fib(100)
-    end
-
-    to fib :n
-        make "a 1
-        make "b 1
-        make "tmp 0
-
-        repeat :n-2 [
-            make :tmp :b
-            make :b :a + :b
-            make :a :tmp
-        ]
-
-        print :b
+        # Ignore this twin
+        print [hello world]
     end
     '''
-    logoCode2 = '''
+
+    logoCode2 = "repeat 4 [fd 100 rt 90]"
+
+    logoCode3 = '''
     to main
         cube
     end
@@ -527,30 +528,27 @@ if __name__ == "__main__":
     start = time.time()
 
     parseTree = parseLogoCode(logoCode)
-    """ print("pretty parsetree:")
+    print("pretty parsetree:\n")
     print(f"{parseTree.pretty()} \n")
-    print("parse tree in actual form:")
+    """ print("parse tree in actual form:")
     print(f"{parseTree} \n") """
-    
-    semanticChecker = SemanticChecker()
-    semanticTree = semanticChecker.visit(parseTree)
 
     compiler = Compiler()
-    pythonCode = compiler.transform(semanticTree)
-    """ print("compile step:")
-    print(f"{pythonCode} \n") """
+    pythonCode = compiler.transform(parseTree)
+    print("compile step:\n")
+    print(f"{pythonCode} \n")
 
     pythonCode = indentPythonCode(pythonCode)
     end = time.time()
 
     print("logo code:")
-    print(logoCode)
+    print(logoCode + "\n")
 
-    print(f"indented python code: (compile time: {end-start})\n")
+    print(f"python code: (compile time: {end-start})")
     print(pythonCode)
 
-    print("result:\n")
-    exec(pythonCode)
+    """ print("result:\n")
+    exec(pythonCode) """
 
     """ print("pretty compile tree:")
     print(pythonCode.pretty())"""
