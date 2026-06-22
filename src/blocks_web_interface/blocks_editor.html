@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiMI Logo Blocks</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="../web_interface/index.css" rel="stylesheet"/>
+  <link href="./blocks.css" rel="stylesheet"/>
+  <script src="./blockly.min.js"></script>
+</head>
+<body>
+
+<header>
+  <span class="site-title">DiMI Logo</span>
+  <div class="sep"></div>
+  <a href="../web_interface/logo_web_editor.html" class="nav-link">Code</a>
+  <a href="./blocks_editor.html" class="nav-link active">Blocks</a>
+  <div class="sep"></div>
+  <div class="ip-row">
+    <span class="label">IP</span>
+    <input type="text" id="ip" value="127.0.0.1" />
+    <span class="label">port</span>
+    <input type="text" id="port" value="8989" class="short" />
+    <button onclick="ping()">Ping</button>
+  </div>
+  <div class="status">
+    <span class="dot" id="dot"></span>
+    <span id="status-text">disconnected</span>
+  </div>
+</header>
+
+<main>
+  <div class="blockly-col">
+    <div id="blockly-area">
+      <div id="blockly-div"></div>
+    </div>
+    <div class="editor-footer">
+      <button class="primary" id="send-btn" onclick="send()">Run on DiMI</button>
+      <button onclick="clearBlocks()">Clear</button>
+      <span class="meta" id="meta">0 blocks</span>
+    </div>
+  </div>
+
+  <div class="divider" id="divider"></div>
+
+  <div class="right-col" id="right-col">
+    <div class="preview-panel">
+      <div class="panel-head"><span>Logo Preview</span></div>
+      <div class="preview-body" id="preview">Connect blocks to the 🚩 Start block…</div>
+    </div>
+    <div class="log-panel">
+      <div class="panel-head">
+        <span>Log</span>
+        <button class="ghost" onclick="clearLog()" style="font-size:11px;padding:2px 4px;">clear</button>
+      </div>
+      <div class="log-body" id="log"></div>
+    </div>
+  </div>
+</main>
+
+<!-- toolbox -->
+<xml id="toolbox" style="display:none">
+
+  <category name="Motion" colour="#4C97FF">
+    <block type="logo_forward">
+      <value name="STEPS"><shadow type="math_number"><field name="NUM">50</field></shadow></value>
+    </block>
+    <block type="logo_backward">
+      <value name="STEPS"><shadow type="math_number"><field name="NUM">50</field></shadow></value>
+    </block>
+    <block type="logo_left">
+      <value name="ANGLE"><shadow type="math_number"><field name="NUM">90</field></shadow></value>
+    </block>
+    <block type="logo_right">
+      <value name="ANGLE"><shadow type="math_number"><field name="NUM">90</field></shadow></value>
+    </block>
+    <block type="logo_home"></block>
+  </category>
+
+  <category name="Looks" colour="#9966FF">
+    <block type="logo_showturtle"></block>
+    <block type="logo_hideturtle"></block>
+  </category>
+
+  <category name="Control" colour="#FFAB19">
+    <block type="logo_repeat">
+      <value name="TIMES"><shadow type="math_number"><field name="NUM">4</field></shadow></value>
+    </block>
+    <block type="logo_if">
+
+    </block>
+    <block type="logo_while">
+    </block>
+  </category>
+
+  <category name="Variables" colour="#FF8C1A">
+    <block type="logo_make"><value name="VAL"><shadow type="math_number"><field name="NUM">1</field></shadow></value></block>
+    <block type="logo_var_get"></block>
+  </category>
+
+  <category name="Print" colour="#5CB1D6">
+    <block type="logo_print_str"></block>
+    <block type="logo_print_expr">
+      <value name="VAL"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    </block>
+  </category>
+
+  <category name="Procedures" colour="#FF6680">
+    <block type="logo_proc_0arg_def"></block>
+    <block type="logo_proc_1arg_def"></block>
+    <block type="logo_proc_0arg_call"></block>
+    <block type="logo_proc_1arg_call">
+      <value name="ARG"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+
+    </block>
+  </category>
+
+  <category name="Math" colour="#5B67A5">
+    <block type="logo_arith">
+      <value name="A"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+      <value name="B"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    </block>
+    <block type="logo_unary_minus">
+      <value name="VAL"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    </block>
+    <block type="logo_math1">
+      <value name="VAL"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    </block>
+    <block type="logo_math2">
+      <value name="A"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+      <value name="B"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    </block>
+    <block type="logo_const"></block>
+  </category>
+
+  <category name="Logic" colour="#5CA65C">
+    <block type="logo_bool"></block>
+    <block type="logo_compare">
+      <value name="A"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+      <value name="B"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    </block>
+    <block type="logo_logic_op">
+      <value name="A"><shadow type="logo_bool"><field name="VAL">true</field></shadow></value>
+      <value name="B"><shadow type="logo_bool"><field name="VAL">true</field></shadow></value>
+    </block>
+    <block type="logo_not">
+      <value name="VAL"><shadow type="logo_bool"><field name="VAL">true</field></shadow></value>
+    </block>
+  </category>
+
+</xml>
+
+<script src="./blocks.js"></script>
+</body>
+</html>
