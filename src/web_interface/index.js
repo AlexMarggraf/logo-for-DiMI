@@ -83,12 +83,14 @@ async function send() {
   sendBtn.textContent = 'Running...';
   document.getElementById('stop-btn').disabled = false;
 
+  currentAbort = new AbortController();
+
   try {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: code,
-      signal: AbortSignal.timeout(10000),
+      signal: currentAbort.signal,
     });
 
     const body = await res.text();
@@ -101,29 +103,12 @@ async function send() {
       setStatus('err');
     }
   } catch (e) {
-    log(e.message, 'err');
-    setStatus('err');
+    if (e.name !== 'AbortError') { log(e.message, 'err'); setStatus('err'); }
   } finally {
+    currentAbort = null;
     sendBtn.disabled = false;
     sendBtn.textContent = 'Run on DiMI';
     document.getElementById('stop-btn').disabled = true;
-  }
-}
-
-async function stop() {
-  const url = baseUrl() + '/stop';
-  log('Stopping DiMI...', 'err');
-  document.getElementById('stop-btn').disabled = true;
-  try {
-    await fetch(url, { method: 'POST', signal: AbortSignal.timeout(3000) });
-    log('Stopped.', 'err');
-    setStatus('err');
-  } catch (e) {
-    log(e.message, 'err');
-    setStatus('err');
-  } finally {
-    sendBtn.disabled = false;
-    sendBtn.textContent = 'Run on DiMI';
   }
 }
 
@@ -160,6 +145,8 @@ document.addEventListener('mouseup', () => {
   document.body.style.userSelect = '';
 });
 
+let currentAbort = null;
+
 async function sendLine() {
   const input = document.getElementById('cli-input');
   const code = input.value.trim();
@@ -168,25 +155,49 @@ async function sendLine() {
   const url = baseUrl() + '/execute';
   log(`> ${code}`, 'dim');
   input.disabled = true;
+  document.getElementById('stop-btn').disabled = false;
+
+  currentAbort = new AbortController();
 
   try {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: code,
-      signal: AbortSignal.timeout(10000),
+      signal: currentAbort.signal,
     });
     const body = await res.text();
     const type = res.ok ? 'ok' : 'err';
     if (res.ok) setStatus('ok'); else setStatus('err');
     body.split('\n').forEach(line => { if (line) log(line, type); });
   } catch (e) {
-    log(e.message, 'err');
-    setStatus('err');
+    if (e.name !== 'AbortError') { log(e.message, 'err'); setStatus('err'); }
   } finally {
+    currentAbort = null;
     input.disabled = false;
     input.value = '';
     input.focus();
+    document.getElementById('stop-btn').disabled = true;
+  }
+}
+
+async function stop() {
+  // Abort whichever fetch is in flight
+  if (currentAbort) { currentAbort.abort(); }
+
+  const url = baseUrl() + '/stop';
+  log('Stopping DiMI...', 'err');
+  document.getElementById('stop-btn').disabled = true;
+  try {
+    await fetch(url, { method: 'POST', signal: AbortSignal.timeout(3000) });
+    log('Stopped.', 'err');
+    setStatus('err');
+  } catch (e) {
+    log(e.message, 'err');
+    setStatus('err');
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Run on DiMI';
   }
 }
 

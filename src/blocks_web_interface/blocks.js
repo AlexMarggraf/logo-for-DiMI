@@ -26,6 +26,7 @@ function setStatus(state) {
 
 const baseUrl     = () => `http://${document.getElementById('ip').value.trim()}:${document.getElementById('port').value.trim()}`;
 const baseAddress = () => `${document.getElementById('ip').value.trim()}:${document.getElementById('port').value.trim()}`;
+let currentAbort = null;
 
 async function ping() {
     log(`Pinging ${baseAddress()}…`); setStatus('connecting');
@@ -37,26 +38,49 @@ async function ping() {
 
 async function send() {
     const code = generateLogo().trim();
-    if (!code) { log('Nothing connected to the Start block.','dim'); return; }
+    if (!code) { log('Nothing connected to the Start block.', 'dim'); return; }
     log(`Running on ${baseAddress()}…`);
     sendBtn.disabled = true; sendBtn.textContent = 'Running…';
+    document.getElementById('stop-btn').disabled = false;
+
+    currentAbort = new AbortController();
+
     try {
         const res = await fetch(baseUrl() + '/execute', {
-            method:'POST', headers:{'Content-Type':'text/plain'},
-            body: code, signal: AbortSignal.timeout(10000),
+            method: 'POST', headers: { 'Content-Type': 'text/plain' },
+            body: code, signal: currentAbort.signal,
         });
         const body = await res.text();
-        if (res.ok) { setStatus('ok');  body.split('\n').forEach(l => l && log(l,'ok')); }
-        else         { setStatus('err'); body.split('\n').forEach(l => l && log(l,'err')); }
-    } catch(e) { log(e.message,'err'); setStatus('err'); }
-    finally { sendBtn.disabled = false; sendBtn.textContent = 'Run on DiMI'; }
+        if (res.ok) { setStatus('ok');  body.split('\n').forEach(l => l && log(l, 'ok')); }
+        else         { setStatus('err'); body.split('\n').forEach(l => l && log(l, 'err')); }
+    } catch(e) {
+        if (e.name !== 'AbortError') { log(e.message, 'err'); setStatus('err'); }
+    } finally {
+        currentAbort = null;
+        sendBtn.disabled = false; sendBtn.textContent = 'Run on DiMI';
+        document.getElementById('stop-btn').disabled = true;
+    }
 }
 
+async function stop() {
+    if (currentAbort) currentAbort.abort();
+
+    log('Stopping DiMI…', 'err');
+    document.getElementById('stop-btn').disabled = true;
+    try {
+        await fetch(baseUrl() + '/stop', { method: 'POST', signal: AbortSignal.timeout(3000) });
+        log('Stopped.', 'err');
+        setStatus('err');
+    } catch(e) {
+        if (e.name !== 'AbortError') { log(e.message, 'err'); }
+    } finally {
+        sendBtn.disabled = false; sendBtn.textContent = 'Run on DiMI';
+    }
+}
 /* block registry */
 const C = {
     motion:  '#4C97FF',
     pen:     '#59C059',
-    looks:   '#9966FF',
     control: '#FFAB19',
     vars:    '#FF8C1A',
     print:   '#5CB1D6',
@@ -457,5 +481,10 @@ document.addEventListener('mouseup', () => {
     document.body.style.cursor = ''; document.body.style.userSelect = '';
 });
 
+
 /* Boot */
-window.addEventListener('load', () => { initBlockly(); log('Ready.','dim'); });
+window.addEventListener('load', () => {
+    initBlockly();
+    log('Ready.','dim');
+    document.getElementById('stop-btn').disabled = true;  // add this line
+});
