@@ -1,0 +1,25 @@
+running develop
+running egg_info
+creating dimi_logo.egg-info
+writing dimi_logo.egg-info/PKG-INFO
+writing dependency_links to dimi_logo.egg-info/dependency_links.txt
+writing entry points to dimi_logo.egg-info/entry_points.txt
+writing requirements to dimi_logo.egg-info/requires.txt
+writing top-level names to dimi_logo.egg-info/top_level.txt
+writing manifest file 'dimi_logo.egg-info/SOURCES.txt'
+reading manifest file 'dimi_logo.egg-info/SOURCES.txt'
+writing manifest file 'dimi_logo.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/user/exchange/ros2_ws/install/dimi_logo/lib/python3.10/site-packages/dimi-logo.egg-link (link to .)
+Installing server script to /home/user/exchange/ros2_ws/install/dimi_logo/lib/dimi_logo
+
+Installed /home/user/exchange/ros2_ws/build/dimi_logo
+running symlink_data
+creating /home/user/exchange/ros2_ws/install/dimi_logo/share/ament_index
+creating /home/user/exchange/ros2_ws/install/dimi_logo/share/ament_index/resource_index
+creating /home/user/exchange/ros2_ws/install/dimi_logo/share/ament_index/resource_index/packages
+symbolically linking /home/user/exchange/ros2_ws/build/dimi_logo/resource/dimi_logo -> /home/user/exchange/ros2_ws/install/dimi_logo/share/ament_index/resource_index/packages
+symbolically linking /home/user/exchange/ros2_ws/build/dimi_logo/package.xml -> /home/user/exchange/ros2_ws/install/dimi_logo/share/dimi_logo
+creating /home/user/exchange/ros2_ws/install/dimi_logo/lib/python3.10/site-packages/dimi_logo
+symbolically linking /home/user/exchange/ros2_ws/build/dimi_logo/dimi_logo/logo.lark -> /home/user/exchange/ros2_ws/install/dimi_logo/lib/python3.10/site-packages/dimi_logo
+symbolically linking /home/user/exchange/ros2_ws/build/dimi_logo/dimi_logo/action_set.json -> /home/user/exchange/ros2_ws/install/dimi_logo/lib/python3.10/site-packages/dimi_logo
