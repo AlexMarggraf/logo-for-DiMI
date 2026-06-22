@@ -1,4 +1,22 @@
+import math
+import time
+
+from geometry_msgs.msg import Twist
+from rclpy.node import Node
+
+
 class Movement(Node):
+    """ROS2 movement helper for DiMI/Tiago Logo commands.
+
+    Distances are interpreted as centimeters, angles as degrees.
+    Movement is open-loop/time-based: good enough for simple Logo demos, but not
+    as accurate as odometry-based navigation.
+    """
+
+    LINEAR_SPEED = 0.1      # m/s
+    ANGULAR_SPEED = 0.3     # rad/s
+    PUBLISH_PERIOD = 0.1    # seconds
+    STOP_SETTLE_TIME = 0.2  # seconds
 
     def __init__(self):
         super().__init__("movement")
@@ -6,112 +24,175 @@ class Movement(Node):
         self.publisher_ = self.create_publisher(
             Twist,
             "/mobile_base_controller/cmd_vel",
-            10
+            10,
         )
 
         self.history = []
         self.heading = 0
 
-    def fd(self, cm):
-        meters = cm / 100.0
+    def fd(self, cm, record=True):
+        """Move forward by ``cm`` centimeters."""
+        cm = self._as_number(cm, "cm")
 
-        self.history.append(("fd", cm))
+        if cm < 0:
+            return self.bk(-cm, record=record)
+        if cm == 0:
+            return
 
-        msg = Twist()
-        msg.linear.x = 0.1
+        if record:
+            self.history.append(("fd", cm))
 
-        duration = meters / 0.1
-        end_time = time.time() + duration
+        self._move(linear_x=self.LINEAR_SPEED, distance_cm=cm)
 
-        while time.time() < end_time:
-            self.publisher_.publish(msg)
-            time.sleep(0.1)
+    def bk(self, cm, record=True):
+        """Move backward by ``cm`` centimeters."""
+        cm = self._as_number(cm, "cm")
 
-        self.stop()
+        if cm < 0:
+            return self.fd(-cm, record=record)
+        if cm == 0:
+            return
 
-    def bk(self, cm):
-        meters = cm / 100.0
+        if record:
+            self.history.append(("bk", cm))
 
-        self.history.append(("bk", cm))
+        self._move(linear_x=-self.LINEAR_SPEED, distance_cm=cm)
 
-        msg = Twist()
-        msg.linear.x = -0.1
+    def move_x(self, cm, record=True, command_name="move_x"):
+        """Move along the robot's X axis.
 
-        duration = meters / 0.1
-        end_time = time.time() + duration
+        Positive values move forward, negative values move backward.
+        """
+        cm = self._as_number(cm, "cm")
 
-        while time.time() < end_time:
-            self.publisher_.publish(msg)
-            time.sleep(0.1)
+        if cm == 0:
+            return
 
-        self.stop()
+        if record:
+            self.history.append((command_name, cm))
 
-    def rt(self, angle):
-        self.history.append(("rt", angle))
+        direction = 1 if cm > 0 else -1
+        self._move(linear_x=direction * self.LINEAR_SPEED, distance_cm=abs(cm))
 
-        angular_speed = 0.3
+    def move_y(self, cm, record=True, command_name="move_y"):
+        """Move along the robot's Y axis.
 
-        msg = Twist()
-        msg.angular.z = -angular_speed
+        Positive values move left, negative values move right. This only works if
+        the robot base accepts lateral velocity commands.
+        """
+        cm = self._as_number(cm, "cm")
 
-        duration = math.radians(angle) / angular_speed
-        end_time = time.time() + duration
+        if cm == 0:
+            return
 
-        while time.time() < end_time:
-            self.publisher_.publish(msg)
-            time.sleep(0.1)
+        if record:
+            self.history.append((command_name, cm))
 
-        self.heading = (self.heading + angle) % 360
-        self.stop()
+        direction = 1 if cm > 0 else -1
+        self._move(linear_y=direction * self.LINEAR_SPEED, distance_cm=abs(cm))
 
-    def lt(self, angle):
-        self.history.append(("lt", angle))
+    # Friendly aliases for Logo/action_set names.
+    movex = move_x
+    movey = move_y
 
-        angular_speed = 0.3
+    def rt(self, angle, record=True):
+        """Turn right by ``angle`` degrees."""
+        angle = self._as_number(angle, "angle")
 
-        msg = Twist()
-        msg.angular.z = angular_speed
+        if angle < 0:
+            return self.lt(-angle, record=record)
+        if angle == 0:
+            return
 
-        duration = math.radians(angle) / angular_speed
-        end_time = time.time() + duration
+        if record:
+            self.history.append(("rt", angle))
 
-        while time.time() < end_time:
-            self.publisher_.publish(msg)
-            time.sleep(0.1)
-
+        self._rotate(angle, angular_z=-self.ANGULAR_SPEED)
         self.heading = (self.heading - angle) % 360
-        self.stop()
+
+    def lt(self, angle, record=True):
+        """Turn left by ``angle`` degrees."""
+        angle = self._as_number(angle, "angle")
+
+        if angle < 0:
+            return self.rt(-angle, record=record)
+        if angle == 0:
+            return
+
+        if record:
+            self.history.append(("lt", angle))
+
+        self._rotate(angle, angular_z=self.ANGULAR_SPEED)
+        self.heading = (self.heading + angle) % 360
 
     def setheading(self, target):
-        difference = target - self.heading
-
-        if difference > 180:
-            difference -= 360
-
-        if difference < -180:
-            difference += 360
+        """Turn to an absolute heading using the shortest direction."""
+        target = self._as_number(target, "target") % 360
+        difference = (target - self.heading + 180) % 360 - 180
 
         if difference > 0:
-            self.rt(difference)
-        else:
-            self.lt(abs(difference))
+            self.lt(difference)
+        elif difference < 0:
+            self.rt(-difference)
 
         self.heading = target
 
     def home(self):
+        """Undo recorded movements and clear the movement history."""
         commands = list(reversed(self.history))
 
         for command, value in commands:
-            if command == "fd":
-                self.bk(value)
+            if command in ("fd", "move_x"):
+                self.move_x(-value, record=False)
             elif command == "bk":
-                self.fd(value)
+                self.move_x(value, record=False)
+            elif command == "move_y":
+                self.move_y(-value, record=False)
             elif command == "rt":
-                self.lt(value)
+                self.lt(value, record=False)
             elif command == "lt":
-                self.rt(value)
+                self.rt(value, record=False)
+
+        self.history.clear()
+        self.heading = 0
 
     def stop(self):
+        """Publish a zero velocity command."""
+        self.publisher_.publish(Twist())
+        time.sleep(self.STOP_SETTLE_TIME)
+
+    def _move(self, distance_cm, linear_x=0.0, linear_y=0.0):
         msg = Twist()
-        self.publisher_.publish(msg)
-        time.sleep(1)
+        msg.linear.x = linear_x
+        msg.linear.y = linear_y
+
+        speed = max(abs(linear_x), abs(linear_y))
+        duration = (distance_cm / 100.0) / speed
+
+        self._publish_for_duration(msg, duration)
+        self.stop()
+
+    def _rotate(self, angle_degrees, angular_z):
+        msg = Twist()
+        msg.angular.z = angular_z
+
+        duration = math.radians(angle_degrees) / abs(angular_z)
+
+        self._publish_for_duration(msg, duration)
+        self.stop()
+
+    def _publish_for_duration(self, msg, duration):
+        end_time = time.time() + duration
+
+        while True:
+            remaining = end_time - time.time()
+            if remaining <= 0:
+                break
+            self.publisher_.publish(msg)
+            time.sleep(min(self.PUBLISH_PERIOD, remaining))
+
+    @staticmethod
+    def _as_number(value, name):
+        if not isinstance(value, (int, float)):
+            raise TypeError(f"{name} must be a number, got {type(value).__name__}")
+        return value
