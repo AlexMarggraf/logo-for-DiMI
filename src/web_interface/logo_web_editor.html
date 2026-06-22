@@ -42,6 +42,7 @@
     </div>
     <div class="editor-footer">
       <button class="primary" id="send-btn" onclick="send()">Run on DiMI</button>
+      <button class="danger" id="stop-btn" onclick="stop()">Stop</button>
       <button onclick="clearCode()">Clear</button>
       <span class="meta" id="meta">0 lines</span>
     </div>
@@ -54,6 +55,11 @@
         <button class="ghost" onclick="clearLog()" style="font-size:11px;padding:2px 4px;">clear</button>
       </div>
       <div class="log-body" id="log"></div>
+    </div>
+    <div class="cli-bar">
+      <span class="cli-prompt">&gt;</span>
+      <input type="text" id="cli-input" placeholder="one-line command..." spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" />
+      <button class="primary" onclick="sendLine()">Send</button>
     </div>
   </div>
 </main>

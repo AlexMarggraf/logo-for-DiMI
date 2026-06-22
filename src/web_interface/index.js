@@ -11,6 +11,7 @@ function updateEditor() {
   lnumsEl.textContent = lines.map((_, i) => i + 1).join('\n');
   metaEl.textContent = `${lines.length} line${lines.length !== 1 ? 's' : ''}`;
 }
+document.getElementById('stop-btn').disabled = true;
 
 codeEl.addEventListener('input', updateEditor);
 codeEl.addEventListener('scroll', () => { lnumsEl.scrollTop = codeEl.scrollTop; });
@@ -80,6 +81,7 @@ async function send() {
   log(`Running on ${baseAddress()}...`);
   sendBtn.disabled = true;
   sendBtn.textContent = 'Running...';
+  document.getElementById('stop-btn').disabled = false;
 
   try {
     const res = await fetch(url, {
@@ -93,16 +95,29 @@ async function send() {
 
     if (res.ok) {
       setStatus('ok');
-      // Print each output line as its own log entry
-      body.split('\n').forEach(line => {
-        if (line !== '') log(line, 'ok');
-      });
+      body.split('\n').forEach(line => { if (line) log(line, 'ok'); });
     } else {
-      body.split('\n').forEach(line => {
-        if (line !== '') log(line, 'err');
-      });
+      body.split('\n').forEach(line => { if (line) log(line, 'err'); });
       setStatus('err');
     }
+  } catch (e) {
+    log(e.message, 'err');
+    setStatus('err');
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Run on DiMI';
+    document.getElementById('stop-btn').disabled = true;
+  }
+}
+
+async function stop() {
+  const url = baseUrl() + '/stop';
+  log('Stopping DiMI...', 'err');
+  document.getElementById('stop-btn').disabled = true;
+  try {
+    await fetch(url, { method: 'POST', signal: AbortSignal.timeout(3000) });
+    log('Stopped.', 'err');
+    setStatus('err');
   } catch (e) {
     log(e.message, 'err');
     setStatus('err');
@@ -143,4 +158,38 @@ document.addEventListener('mouseup', () => {
   divider.classList.remove('dragging');
   document.body.style.cursor = '';
   document.body.style.userSelect = '';
+});
+
+async function sendLine() {
+  const input = document.getElementById('cli-input');
+  const code = input.value.trim();
+  if (!code) { log('Empty command.', 'dim'); return; }
+
+  const url = baseUrl() + '/execute';
+  log(`> ${code}`, 'dim');
+  input.disabled = true;
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: code,
+      signal: AbortSignal.timeout(10000),
+    });
+    const body = await res.text();
+    const type = res.ok ? 'ok' : 'err';
+    if (res.ok) setStatus('ok'); else setStatus('err');
+    body.split('\n').forEach(line => { if (line) log(line, type); });
+  } catch (e) {
+    log(e.message, 'err');
+    setStatus('err');
+  } finally {
+    input.disabled = false;
+    input.value = '';
+    input.focus();
+  }
+}
+
+document.getElementById('cli-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendLine();
 });

@@ -286,3 +286,37 @@ button.ghost:hover { color: var(--text); background: transparent; }
 }
 .nav-link:hover { border-color: var(--border); color: var(--text); }
 .nav-link.active { border-color: var(--border); color: var(--text); background: var(--bg); }
+
+/* ── CLI bar ── */
+.cli-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+}
+
+.cli-prompt {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--dim);
+    flex-shrink: 0;
+}
+
+.cli-bar input[type="text"] {
+    flex: 1;
+    width: auto;
+    font-size: 12px;
+    padding: 5px 8px;
+}
+
+button.danger {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+}
+
+button.danger:hover    { background: #9a2020; border-color: #9a2020; }
+button.danger:disabled { background: #aaa; border-color: #aaa; cursor: default; }
