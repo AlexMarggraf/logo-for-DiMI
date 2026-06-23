@@ -18,6 +18,16 @@ class Movement(Node):
     PUBLISH_PERIOD = 0.1    # seconds
     STOP_SETTLE_TIME = 0.2  # seconds
 
+    # Text-to-speech: name and type of the action server on the robot.
+    # Verify on your robot with: ros2 action list -t
+    # PAL TIAGo default is shown here; the community tts_ros package instead uses
+    # ("audio_common_msgs.action", "TTS") on the "/say" action.
+    TTS_ACTION_NAME = "/tts"
+    TTS_ACTION_MODULE = "pal_interaction_msgs.action"
+    TTS_ACTION_CLASS = "Tts"
+    TTS_LANGUAGE = "en_GB"   # e.g. "de_DE" if a German voice is installed
+    TTS_TIMEOUT = 5.0        # seconds to wait for the action server
+
     def __init__(self):
         super().__init__("movement")
 
@@ -156,6 +166,65 @@ class Movement(Node):
         self.history.clear()
         self.heading = 0
 
+    def text_to_speech(self, text, wait=True):
+        """Speak ``text`` out loud through the robot's TTS action server.
+
+        This node is spun by a background executor in server.py, so we wait on the
+        action futures via callbacks instead of spinning the node ourselves (which
+        would clash with that executor). Degrades gracefully: if the TTS package or
+        server is unavailable, it logs a warning and returns instead of crashing the
+        Logo run.
+        """
+        import threading
+
+        text = str(text)
+        if not text:
+            return
+
+        try:
+            import importlib
+
+            from rclpy.action import ActionClient
+
+            action_module = importlib.import_module(self.TTS_ACTION_MODULE)
+            action_type = getattr(action_module, self.TTS_ACTION_CLASS)
+        except (ImportError, AttributeError):
+            self.get_logger().warning(
+                "TTS action type not available; cannot speak."
+            )
+            return
+
+        client = ActionClient(self, action_type, self.TTS_ACTION_NAME)
+
+        if not client.wait_for_server(timeout_sec=self.TTS_TIMEOUT):
+            self.get_logger().warning(
+                f"TTS server '{self.TTS_ACTION_NAME}' not available; cannot speak."
+            )
+            return
+
+        goal = action_type.Goal()
+        goal.rawtext.text = text
+        goal.rawtext.lang_id = self.TTS_LANGUAGE
+
+        def await_future(future, timeout):
+            done = threading.Event()
+            future.add_done_callback(lambda _f: done.set())
+            if not done.wait(timeout):
+                return None
+            return future.result()
+
+        goal_handle = await_future(client.send_goal_async(goal), self.TTS_TIMEOUT)
+
+        if goal_handle is None or not goal_handle.accepted:
+            self.get_logger().warning("TTS goal was not accepted.")
+            return
+
+        if wait:
+            await_future(goal_handle.get_result_async(), timeout=None)
+
+    # Friendly alias for Logo/action_set names.
+    say = text_to_speech
+
     def stop(self):
         """Publish a zero velocity command."""
         self.publisher_.publish(Twist())
@@ -196,3 +265,4 @@ class Movement(Node):
         if not isinstance(value, (int, float)):
             raise TypeError(f"{name} must be a number, got {type(value).__name__}")
         return value
+
