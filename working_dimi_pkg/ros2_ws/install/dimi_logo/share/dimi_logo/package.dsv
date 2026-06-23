@@ -1,9 +1,0 @@
-source;share/dimi_logo/hook/pythonpath.ps1
-source;share/dimi_logo/hook/pythonpath.dsv
-source;share/dimi_logo/hook/pythonpath.sh
-source;share/dimi_logo/hook/ament_prefix_path.ps1
-source;share/dimi_logo/hook/ament_prefix_path.dsv
-source;share/dimi_logo/hook/ament_prefix_path.sh
-source;../../build/dimi_logo/share/dimi_logo/hook/pythonpath_develop.ps1
-source;../../build/dimi_logo/share/dimi_logo/hook/pythonpath_develop.dsv
-source;../../build/dimi_logo/share/dimi_logo/hook/pythonpath_develop.sh

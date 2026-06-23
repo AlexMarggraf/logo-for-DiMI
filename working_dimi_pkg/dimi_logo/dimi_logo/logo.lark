@@ -1,0 +1,133 @@
+%import common.WS
+%import common.NEWLINE
+%import common.ESCAPED_STRING
+%import common.SIGNED_NUMBER
+%import common.CNAME
+
+%ignore WS
+
+STRING : /[a-zA-Z_][a-zA-Z0-9_]*/
+?number : SIGNED_NUMBER
+
+?start : prog | input_lines
+
+prog : NEWLINE* (program_declaration (NEWLINE program_declaration?)*)? NEWLINE*
+
+input_lines : (stmt | NEWLINE)*
+
+program_declaration : "to" identifier param_list? NEWLINE (stmt* NEWLINE)* "end"
+
+param_list : variable+
+
+?stmt : make_stmt
+    | print_str_stmt
+	| print_exp_stmt
+	| repeat_stmt
+	| if_stmt
+	| while_stmt
+	| prog_call_stmt
+
+stmt_block : "[" stmt* "]"
+
+repeat_stmt : "repeat" expr stmt_block
+
+if_stmt: "if" "(" expr ")" stmt_block+
+
+while_stmt : "while" "[" expr "]" stmt_block
+
+make_stmt : "make" var_decl expr | "make" variable expr
+
+print_str_stmt : "print" "[" STRING* "]"
+print_exp_stmt : "print" "[" expr "]"
+
+prog_call_stmt : identifier expr*
+
+?expr : literal -> expr_literal
+    | "{" expr expr expr "}" -> expr_color
+	| "[" expr expr expr "]" -> expr_color
+	| "(" expr ")" -> expr_in_brackets
+	| UNARY_ARIT_OP expr -> expr_unary_arit_op
+	| expr BIN_ARIT_OP expr -> expr_bin_arit_op
+	| func_name_two_arg expr expr -> expr_func_two_arg
+	| func_name_one_arg expr -> expr_func_one_arg
+	| const -> expr_const
+	| UNARY_BOOL_OP expr -> expr_unary_bool_op
+	| expr BIN_BOOL_OP expr -> expr_bin_bool_op
+
+UNARY_ARIT_OP : "+" | "-"
+
+BIN_ARIT_OP : "*" | "/" | "%" | "+" | "-"
+
+UNARY_BOOL_OP : "!"
+
+BIN_BOOL_OP : "<" | "<=" | ">" | ">=" | "==" | "!=" | "&&" | "||"
+
+?literal : variable | number | colorname | BOOLEAN
+
+?const : PICONST | ECONST
+
+PICONST : "pi"
+ECONST : /e(?!nd)/
+
+STOP : "stop"
+
+?func_name_one_arg : sin
+	| cos
+	| tan
+	| asin
+	| acos
+	| atan
+	| abs
+	| sqrt
+	| rand
+	| round
+	| log
+
+sin : "sin"
+cos : "cos"
+tan : "tan"
+asin : "arcsin" | "asin"
+acos : "arccos" | "acos"
+atan : "arctan" | "atan"
+abs : "abs"
+sqrt : "sqrt"
+rand : "random" | "rand" | "rnd"
+round : "round"
+log : "log" | "log10"
+
+?func_name_two_arg : mod
+	| pow
+
+mod : "mod"
+pow : "power" | "pow"
+
+colorname : "black" -> black
+    | "red" -> red
+    | "green" -> green
+    | "yellow" -> yellow
+    | "blue" -> blue
+    | "magenta" -> magenta
+    | "cyan" -> cyan
+    | "white" -> white
+    | "gray" -> gray
+    | "grey" -> grey
+    | "lightgray" -> gray
+    | "lightgrey" -> grey
+    | "darkred" -> darkred
+    | "darkgreen" -> darkgreen
+    | "darkblue" -> darkblue
+    | "orange" -> orange
+    | "pink" -> pink
+    | "purple" -> purple
+    | "brown" -> brown
+
+variable : ":" identifier
+
+var_decl : "\"" identifier
+
+BOOLEAN : "true" | "false"
+
+identifier: /(?!(to|end))[a-zA-Z_][a-zA-Z0-9_]*/
+
+COMMENT: /#[^\n\r]*/
+%ignore COMMENT

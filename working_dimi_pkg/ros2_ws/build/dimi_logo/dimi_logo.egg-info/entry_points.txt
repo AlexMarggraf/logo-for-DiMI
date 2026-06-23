@@ -1,3 +1,0 @@
-[console_scripts]
-server = dimi_logo.server:main
-
