@@ -26,13 +26,13 @@
     "pd" : "NA",
     "pe" : "NA",
     "ppt" : "NA",
-    "setx" : "example.setx",
-    "sety" : "example.sety",
-    "setheading" : "example.setheading",
+    "setx" : "movement.move_x",
+    "sety" : "movement.move_y",
+    "setheading" : "movement.setheading",
     "wait" : "time.sleep",
     "setxy" : "example.setxy",
     "wash" : "NA",
-    "home" : "example.home",
+    "home" : "movement.home",
     "ct" : "NA",
-    "cs" : "example.home"
+    "cs" : "movement.home"
 }

@@ -13,9 +13,10 @@ import time
 
 from dimi_logo.compiler import compileLogoCode
 
+# ── Global execution state ──────────────────────────────────────────────────
 _exec_thread = None
 _exec_lock   = threading.Lock()
-_movement    = None   # set once movement is imported and setup
+_movement    = None   # set once Movement is imported and instantiated
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
@@ -75,7 +76,7 @@ class LogoHandler(BaseHTTPRequestHandler):
             _exec_thread = t
 
         t.start()
-        t.join()   # block http handler until done to return output
+        t.join()   # block the HTTP handler until done to return output
 
         with _exec_lock:
             _exec_thread = None
@@ -97,7 +98,7 @@ class LogoHandler(BaseHTTPRequestHandler):
                 ctypes.c_ulong(t.ident),
                 ctypes.py_object(SystemExit),
             )
-            t.join(timeout=0.5)  # wait for thread to acutally die
+            t.join(timeout=0.5)  # wait for thread to actually die
 
         if _movement is not None:
             _movement.stop()
