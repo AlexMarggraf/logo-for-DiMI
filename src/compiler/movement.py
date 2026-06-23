@@ -1,5 +1,8 @@
 import math
 import time
+import importlib  
+from rclpy.action import ActionClient
+import threading
 
 from geometry_msgs.msg import Twist
 from rclpy.node import Node
@@ -175,16 +178,12 @@ class Movement(Node):
         server is unavailable, it logs a warning and returns instead of crashing the
         Logo run.
         """
-        import threading
 
         text = str(text)
         if not text:
             return
 
         try:
-            import importlib
-
-            from rclpy.action import ActionClient
 
             action_module = importlib.import_module(self.TTS_ACTION_MODULE)
             action_type = getattr(action_module, self.TTS_ACTION_CLASS)
