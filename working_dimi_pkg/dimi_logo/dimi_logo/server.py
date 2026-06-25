@@ -8,9 +8,6 @@ import traceback
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 from datetime import datetime
-from geometry_msgs.msg import Twist
-import time
-import math
 
 from dimi_logo.compiler import compileLogoCode
 

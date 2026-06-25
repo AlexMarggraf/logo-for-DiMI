@@ -3,7 +3,6 @@ import time
 from rclpy.node import Node
 from rclpy.action import ActionClient
 from tts_msgs.action import TTS
-
 from geometry_msgs.msg import Twist
 
 
@@ -32,61 +31,6 @@ class Movement(Node):
         self.heading = 0
         self.x = 0
         self.y = 0
-
-    def text_to_speech(self, text, wait=True):
-        """Speak ``text`` out loud through the robot's TTS action server.
-
-        This node is spun by a background executor in server.py, so we wait on the
-        action futures via callbacks instead of spinning the node ourselves (which
-        would clash with that executor). Degrades gracefully: if the TTS package or
-        server is unavailable, it logs a warning and returns instead of crashing the
-        Logo run.
-        """
-
-        text = str(text)
-        if not text:
-            return
-
-        try:
-
-            action_module = importlib.import_module(self.TTS_ACTION_MODULE)
-            action_type = getattr(action_module, self.TTS_ACTION_CLASS)
-        except (ImportError, AttributeError):
-            self.get_logger().warning(
-                "TTS action type not available; cannot speak."
-            )
-            return
-
-        client = ActionClient(self, action_type, self.TTS_ACTION_NAME)
-
-        if not client.wait_for_server(timeout_sec=self.TTS_TIMEOUT):
-            self.get_logger().warning(
-                f"TTS server '{self.TTS_ACTION_NAME}' not available; cannot speak."
-            )
-            return
-
-        goal = action_type.Goal()
-        goal.rawtext.text = text
-        goal.rawtext.lang_id = self.TTS_LANGUAGE
-
-        def await_future(future, timeout):
-            done = threading.Event()
-            future.add_done_callback(lambda _f: done.set())
-            if not done.wait(timeout):
-                return None
-            return future.result()
-
-        goal_handle = await_future(client.send_goal_async(goal), self.TTS_TIMEOUT)
-
-        if goal_handle is None or not goal_handle.accepted:
-            self.get_logger().warning("TTS goal was not accepted.")
-            return
-
-        if wait:
-            await_future(goal_handle.get_result_async(), timeout=None)
-
-    # Friendly alias for Logo/action_set names.
-    say = text_to_speech
 
     def fd(self, cm):
         """Move forward by ``cm`` centimeters."""
