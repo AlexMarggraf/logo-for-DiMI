@@ -4,6 +4,7 @@ import re
 import time
 import math
 import os
+import random
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -110,6 +111,9 @@ class Compiler(Transformer):
         return f"{self.action_set[items[0]]}({items[1]}, {items[2]})"
     
     def expr_func_one_arg(self, items):
+        if items[0] == "rand":
+            return f"{self.action_set[items[0]]}(1, {items[1]})"
+
         return f"{self.action_set[items[0]]}({items[1]})"
     
     def expr_func_no_arg(self, items):
@@ -141,9 +145,7 @@ class Compiler(Transformer):
         return output
     
     def print_exp_stmt(self, items):
-        actual = self.action_set["print"]
-
-        output = f"{actual}("
+        output = f"print("
 
         for item in items:
             output += f"{item} "
@@ -311,8 +313,7 @@ if __name__ == "__main__":
     logoCode = '''
     to main
         # Ignore this twin
-        print [hello world]
-        print [cos 4]
+        print [rand 10]
     end
     '''
 
@@ -556,8 +557,8 @@ if __name__ == "__main__":
     print(f"python code: (compile time: {end-start})")
     print(pythonCode)
 
-    """ print("result:\n")
-    exec(pythonCode) """
+    print("result:\n")
+    exec(pythonCode)
 
     """ print("pretty compile tree:")
     print(pythonCode.pretty())"""

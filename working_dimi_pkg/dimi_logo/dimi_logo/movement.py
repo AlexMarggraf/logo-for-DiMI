@@ -1,11 +1,10 @@
 import math
 import time
-import importlib
+from rclpy.node import Node
 from rclpy.action import ActionClient
-import threading
+from tts_msgs.action import TTS
 
 from geometry_msgs.msg import Twist
-from rclpy.node import Node
 
 
 class Movement(Node):
@@ -133,7 +132,7 @@ class Movement(Node):
         start_heading = self.heading
         self.setheading(90)
         self.fd(new_x - self.x)
-        self.setheading(start_heading)
+        self.setheading(0)
         self.print_coords()
 
         return None
@@ -146,7 +145,7 @@ class Movement(Node):
         start_heading = self.heading
         self.setheading(0)
         self.fd(new_y - self.y)
-        self.setheading(start_heading)
+        self.setheading(0)
         self.print_coords()
 
         return None
@@ -166,7 +165,7 @@ class Movement(Node):
         distance = math.sqrt(x_diff**2 + y_diff**2)
 
         self.bk(distance)        
-        self.setheading(start_heading)
+        self.setheading(0)
 
         self.print_coords()
 
@@ -273,10 +272,33 @@ class Movement(Node):
                 break
             self.publisher_.publish(msg)
             time.sleep(min(self.PUBLISH_PERIOD, remaining))
-
+    
+    def text_to_speech(self, text):
+        node = TTSClient()
+        node.speak(text)
+        node.destroy_node()
 
     @staticmethod
     def _as_number(value, name):
         if not isinstance(value, (int, float)):
             raise TypeError(f"{name} must be a number, got {type(value).__name__}")
         return value
+
+class TTSClient(Node):
+    def __init__(self):
+        super().__init__('tts_client')
+
+        self.client = ActionClient(
+            self,
+            TTS,
+            '/tts_engine/tts'
+        )
+
+        self.client.wait_for_server()
+
+    def speak(self, text):
+        goal = TTS.Goal()
+        goal.input = text
+        goal.locale = "en_US"
+
+        self.client.send_goal_async(goal)

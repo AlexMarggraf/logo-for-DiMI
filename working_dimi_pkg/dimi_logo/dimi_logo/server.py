@@ -10,6 +10,7 @@ from socketserver import ThreadingMixIn
 from datetime import datetime
 from geometry_msgs.msg import Twist
 import time
+import math
 
 from dimi_logo.compiler import compileLogoCode
 
@@ -64,7 +65,9 @@ class LogoHandler(BaseHTTPRequestHandler):
             nonlocal failed
             try:
                 sys.stdout = buffer
-                exec(compileLogoCode(code), {"movement": _movement})
+                logoCode = "import math\nimport random\nimport time\n" + compileLogoCode(code)
+                print(logoCode)
+                exec(logoCode, {"movement": _movement})
             except Exception:
                 buffer.write(traceback.format_exc())
                 failed = True

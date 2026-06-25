@@ -9,7 +9,7 @@
     "acos" : "math.acos",
     "atan" : "math.atan",
     "sqrt" : "math.sqrt",
-    "rand" : "math.random",
+    "rand" : "random.randint",
     "round" : "math.round",
     "log" : "math.log",
     "abs" : "math.abs",
