@@ -38,7 +38,6 @@ class Movement(Node):
 
         self.x += math.sin(math.radians(self.heading)) * cm
         self.y += math.cos(math.radians(self.heading)) * cm
-        self.print_coords()
 
         return None
 
@@ -55,21 +54,15 @@ class Movement(Node):
         self.x -= math.sin(math.radians(self.heading)) * cm
         self.y -= math.cos(math.radians(self.heading)) * cm
 
-        self.print_coords()
         return None
-
-    def print_coords(self):
-        print(f"curr cords x {self.x} y {self.y} heading {self.heading}")
 
     def set_x(self, new_x):
         if self.x == new_x:
             return None
 
-        start_heading = self.heading
         self.setheading(90)
         self.fd(new_x - self.x)
         self.setheading(0)
-        self.print_coords()
 
         return None
 
@@ -77,11 +70,9 @@ class Movement(Node):
         if self.y == new_y:
             return None
 
-        start_heading = self.heading
         self.setheading(0)
         self.fd(new_y - self.y)
         self.setheading(0)
-        self.print_coords()
 
         return None
 
@@ -89,8 +80,6 @@ class Movement(Node):
         if self.x == new_x and self.y == new_y:
             return None
     
-
-        start_heading = self.heading
         x_diff = self.x - new_x
         y_diff = self.y - new_y
         target_heading = math.degrees(math.atan2(x_diff, y_diff))
@@ -100,8 +89,6 @@ class Movement(Node):
 
         self.bk(distance)        
         self.setheading(0)
-
-        self.print_coords()
 
         return None
 
