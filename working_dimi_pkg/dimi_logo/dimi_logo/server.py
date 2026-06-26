@@ -63,7 +63,6 @@ class LogoHandler(BaseHTTPRequestHandler):
             try:
                 sys.stdout = buffer
                 logoCode = "import math\nimport random\nimport time\n" + compileLogoCode(code)
-                print(logoCode)
                 exec(logoCode, {"movement": _movement})
             except Exception:
                 buffer.write(traceback.format_exc())
