@@ -1,6 +1,6 @@
 {
     "color" : "NA",
-    "mod" : "math.mod",
+    "mod" : "math.fmod",
     "pow" : "math.pow",
     "sin" : "math.sin",
     "cos" : "math.cos",
