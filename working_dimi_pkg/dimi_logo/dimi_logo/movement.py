@@ -16,6 +16,7 @@ class Movement(Node):
     def __init__(self):
         super().__init__("movement")
 
+        self.node = TTSClient()
         self.publisher_ = self.create_publisher(
             Twist,
             "/cmd_vel",
@@ -180,9 +181,7 @@ class Movement(Node):
             time.sleep(min(self.PUBLISH_PERIOD, remaining))
     
     def text_to_speech(self, text):
-        node = TTSClient()
-        node.speak(text)
-        node.destroy_node()
+        self.node.speak(text)
 
     @staticmethod
     def _as_number(value, name):

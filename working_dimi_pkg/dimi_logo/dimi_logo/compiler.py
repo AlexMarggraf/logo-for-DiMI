@@ -306,8 +306,8 @@ if __name__ == "__main__":
 
     logoCode = '''
     to main
-        # Ignore this twin
-        print [rand 10]
+        make "a (rand 10)
+        if((mod :a 2) == 0)[rt 90][lt 90]
     end
     '''
 
