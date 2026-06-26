@@ -7,17 +7,11 @@ from geometry_msgs.msg import Twist
 
 
 class Movement(Node):
-    """ROS2 movement helper for DiMI/Tiago Logo commands.
 
-    Distances are interpreted as centimeters, angles as degrees.
-    Movement is open-loop/time-based: good enough for simple Logo demos, but not
-    as accurate as odometry-based navigation.
-    """
-
-    LINEAR_SPEED = 0.2      # m/s
-    ANGULAR_SPEED = 0.6     # rad/s
-    PUBLISH_PERIOD = 0.1    # seconds
-    STOP_SETTLE_TIME = 0.2  # seconds
+    LINEAR_SPEED = 0.2
+    ANGULAR_SPEED = 0.6
+    PUBLISH_PERIOD = 0.1
+    STOP_SETTLE_TIME = 0.2
 
     def __init__(self):
         super().__init__("movement")
@@ -33,7 +27,6 @@ class Movement(Node):
         self.y = 0
 
     def fd(self, cm):
-        """Move forward by ``cm`` centimeters."""
         cm = self._as_number(cm, "cm")
 
         if cm < 0:
@@ -50,7 +43,6 @@ class Movement(Node):
         return None
 
     def bk(self, cm):
-        """Move backward by ``cm`` centimeters."""
         cm = self._as_number(cm, "cm")
 
         if cm < 0:
@@ -82,7 +74,6 @@ class Movement(Node):
         return None
 
     def set_y(self, new_y):
-        print(f"set y {new_y}")
         if self.y == new_y:
             return None
 
@@ -103,7 +94,6 @@ class Movement(Node):
         x_diff = self.x - new_x
         y_diff = self.y - new_y
         target_heading = math.degrees(math.atan2(x_diff, y_diff))
-        print(f"xdiff {x_diff} ydiff {y_diff} target {target_heading}")
         self.setheading(target_heading)
 
         distance = math.sqrt(x_diff**2 + y_diff**2)
@@ -116,10 +106,6 @@ class Movement(Node):
         return None
 
     def move_x(self, cm, record=True, command_name="move_x"):
-        """Move along the robot's X axis.
-
-        Positive values move forward, negative values move backward.
-        """
         cm = self._as_number(cm, "cm")
 
         if cm == 0:
@@ -129,11 +115,6 @@ class Movement(Node):
         self._move(linear_x=direction * self.LINEAR_SPEED, distance_cm=abs(cm))
 
     def move_y(self, cm, record=True, command_name="move_y"):
-        """Move along the robot's Y axis.
-
-        Positive values move left, negative values move right. This only works if
-        the robot base accepts lateral velocity commands.
-        """
         cm = self._as_number(cm, "cm")
 
         if cm == 0:
@@ -142,12 +123,10 @@ class Movement(Node):
         direction = 1 if cm > 0 else -1
         self._move(linear_y=direction * self.LINEAR_SPEED, distance_cm=abs(cm))
 
-    # Friendly aliases for Logo/action_set names.
     movex = move_x
     movey = move_y
 
     def rt(self, angle, record=True):
-        """Turn right by ``angle`` degrees."""
         angle = self._as_number(angle, "angle")
 
         if angle < 0:
@@ -160,7 +139,6 @@ class Movement(Node):
         self.heading = (self.heading + angle) % 360
 
     def lt(self, angle, record=True):
-        """Turn left by ``angle`` degrees."""
         angle = self._as_number(angle, "angle")
 
         if angle < 0:
@@ -172,10 +150,8 @@ class Movement(Node):
         self.heading = (self.heading - angle) % 360
 
     def setheading(self, target):
-        """Turn to an absolute heading using the shortest direction."""
         target = self._as_number(target, "target") % 360
         difference = (target - self.heading + 180) % 360 - 180
-        print(f"setheading {target} difference {difference}")
 
         self.rt(difference)
 
@@ -183,7 +159,6 @@ class Movement(Node):
         self.set_xy(0, 0)
 
     def stop(self):
-        """Publish a zero velocity command."""
         self.publisher_.publish(Twist())
         time.sleep(self.STOP_SETTLE_TIME)
 
